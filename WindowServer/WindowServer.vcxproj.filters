@@ -1,0 +1,54 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{090bf90e-f6ff-4023-8a2b-5c55d9c0eda2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header">
+      <UniqueIdentifier>{433be096-8c70-466a-a9d2-535ce0d4f40e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Pool">
+      <UniqueIdentifier>{6d6d5e42-5d5d-498e-b313-7ab18edf6669}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Pool">
+      <UniqueIdentifier>{8e375081-c91c-4ba1-be7d-4bf1a4295606}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Source\Main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pool\MemoryPool.cpp">
+      <Filter>Source\Pool</Filter>
+    </ClCompile>
+    <ClCompile Include="MainPCH.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pool\ObjectPool.cpp">
+      <Filter>Source\Pool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pool\ThreadPool.cpp">
+      <Filter>Source\Pool</Filter>
+    </ClCompile>
+    <ClCompile Include="ServerApp.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="MainPCH.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Pool\MemoryPool.h">
+      <Filter>Header\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Pool\ObjectPool.h">
+      <Filter>Header\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Pool\ThreadPool.h">
+      <Filter>Header\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerApp.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
