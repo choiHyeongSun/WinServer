@@ -6,10 +6,11 @@ class ObjectPool
 {
 
 public:
-
 	static std::shared_ptr<ObjectPool> CreateObjectPool(MemoryPool* InMemoryPool);
+
 	~ObjectPool()
 	{
+		CloseHandle(AllocationMutex);
 		InterlockedFlushSList(&UnAllocateObjectList);
 		for (int i = 0; i < HeadMemory.size(); i ++)
 		{
@@ -22,25 +23,34 @@ private:
 	ObjectPool(MemoryPool* InMemoryPool) :
 		TypeSize(sizeof(TYPE)), MemoryPool(InMemoryPool)
 	{
-		AllocateMemory();
 		InitializeSListHead(&UnAllocateObjectList);
+		AllocationMutex = CreateMutex(nullptr, FALSE, nullptr);
+		if (AllocationMutex == nullptr)
+		{
+			std::cout << "AllocationMutex is nullptr" << std::endl;
+			exit(-1);
+		}
+
+		AllocateMemory();
 	}
+
+private:
+	const size_t TypeSize;
 
 private:
 	MemoryPool* MemoryPool;
 	std::vector<void*> HeadMemory;
-	size_t TypeSize;
 
-	SLIST_HEADER UnAllocateObjectList;
+	__declspec(align(16)) SLIST_HEADER UnAllocateObjectList;
+	HANDLE AllocationMutex;
 
 public:
 	TYPE* AllocateObject();
+	std::vector<TYPE*> AllocateObjects(size_t size);
 	void FreeObject(TYPE** InObject);
 
 private:
 	void AllocateMemory();
-
-
 };
 
 template <typename TYPE>
@@ -58,14 +68,43 @@ std::shared_ptr<ObjectPool<TYPE>> ObjectPool<TYPE>::CreateObjectPool(::MemoryPoo
 template <typename TYPE>
 TYPE* ObjectPool<TYPE>::AllocateObject()
 {
-	USHORT depth = QueryDepthSList(&UnAllocateObjectList);
-	if (depth == 0)
+	PSLIST_ENTRY element = nullptr; 
+	while (true)
 	{
-		AllocateMemory();
+		element = InterlockedPopEntrySList(&UnAllocateObjectList);
+		if (element != nullptr) break;
+
+
+
+		DWORD dwWaitResult = WaitForSingleObject(AllocationMutex, INFINITE);
+		if (dwWaitResult == WAIT_FAILED)
+		{
+			DWORD errorCode = GetLastError();
+			printf("Wait failed. Error code: %lu\n", errorCode);
+			exit(-1);
+		}
+
+		USHORT depth = QueryDepthSList(&UnAllocateObjectList);
+		if (depth == 0)
+		{
+			AllocateMemory();
+		}
+		ReleaseMutex(AllocationMutex);
 	}
-	PSLIST_ENTRY element = InterlockedPopEntrySList(&UnAllocateObjectList);
+	
 	TYPE* resultObject = new(element) TYPE;
 	return resultObject;
+}
+
+template <typename TYPE>
+std::vector<TYPE*> ObjectPool<TYPE>::AllocateObjects(size_t size)
+{
+	std::vector<TYPE*> v(size, nullptr);
+	for (int i = 0; i < size; i ++)
+	{
+		v[i] = AllocateObject();
+	}
+	return std::move(v);
 }
 
 template <typename TYPE>
@@ -81,6 +120,10 @@ template <typename TYPE>
 void ObjectPool<TYPE>::AllocateMemory()
 {
 	char* memory = static_cast<char*>(MemoryPool->Allocate());
+	if (memory == nullptr)
+	{
+		std::cout << "memory is empty" << std::endl;
+	}
 	HeadMemory.push_back(memory);
 	size_t index = 0;
 

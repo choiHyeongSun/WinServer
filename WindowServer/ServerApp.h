@@ -2,6 +2,7 @@
 #include "Pool/ObjectPool.h"
 
 
+struct test_struct;
 class MemoryPool;
 class ThreadPool;
 
@@ -13,8 +14,6 @@ private:
 	static const size_t MemoryPoolSize;
 	static const size_t MemoryPoolGroup;
 
-
-
 public:
 	ServerApp();
 	~ServerApp();
@@ -25,5 +24,6 @@ public:
 private:
 	std::shared_ptr<ThreadPool> ThreadPooling;
 	std::shared_ptr<MemoryPool> MemoryPooling;
+	std::shared_ptr<ObjectPool<test_struct>> ObjectPooling;
 };
 

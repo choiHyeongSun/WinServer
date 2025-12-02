@@ -13,6 +13,12 @@
     <Filter Include="Header\Pool">
       <UniqueIdentifier>{8e375081-c91c-4ba1-be7d-4bf1a4295606}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Server">
+      <UniqueIdentifier>{6756bbc4-4586-4f82-b763-631710d10b63}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Server">
+      <UniqueIdentifier>{33698453-b049-4ca0-a91e-fa9ffef6b261}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">

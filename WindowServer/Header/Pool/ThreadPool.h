@@ -13,17 +13,19 @@ private:
 private:
 	size_t MaxThreadNum;
 	size_t JobMaxCapacity;
+	size_t WorkingThreadCount;
 
 	std::vector<HANDLE> Works;
 	std::queue<std::function<void()>> Jobs;
 
 	HANDLE Mutex;
-	HANDLE WorkerThreadEvent;
+	HANDLE WorkerThreadSemaphore;
+	HANDLE WorkingEvent;
+
 
 	bool IsFinish;
 public:
 	bool SubmitJob(const std::function<void()>& InJob);
-	void ExecutionThread();
 	bool IsHasJobs() const;
 	void WaitForAllThreas();
 	void EndThreadPool();
