@@ -19,6 +19,15 @@
     <Filter Include="Header\Server">
       <UniqueIdentifier>{33698453-b049-4ca0-a91e-fa9ffef6b261}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header\Interfaces">
+      <UniqueIdentifier>{27cb9cb2-68b9-4fee-a491-b4063e21f028}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Databases">
+      <UniqueIdentifier>{35011a69-8428-4f5f-8e22-501256fa2fee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Databases">
+      <UniqueIdentifier>{8bc8cf85-ef3f-487c-b227-df78a0195efc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -39,6 +48,18 @@
     <ClCompile Include="ServerApp.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="Source\Server\BlockingSock.cpp">
+      <Filter>Source\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\BlockSocketWrapper.cpp">
+      <Filter>Source\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\ListenSocket.cpp">
+      <Filter>Source\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Server\UDPSocket.cpp">
+      <Filter>Source\Server</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="MainPCH.h">
@@ -55,6 +76,27 @@
     </ClInclude>
     <ClInclude Include="ServerApp.h">
       <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Pool\PoolingManager.h">
+      <Filter>Header\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Server\BlockingSock.h">
+      <Filter>Header\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Server\BlockSocketWrapper.h">
+      <Filter>Header\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Server\Sock.h">
+      <Filter>Header\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Server\ListenSocket.h">
+      <Filter>Header\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Interfaces\INetworkSession.h">
+      <Filter>Header\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Server\UDPSocket.h">
+      <Filter>Header\Server</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

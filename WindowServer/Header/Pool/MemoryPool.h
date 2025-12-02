@@ -5,6 +5,12 @@ class MemoryPool
 public:
 	static std::shared_ptr<MemoryPool> CreateMemoryPool(size_t InSize, size_t InGroupSize);
 
+private:
+	MemoryPool() = delete;
+	MemoryPool(size_t InSize, size_t InGroupSize) : Size(InSize), GroupSize(InGroupSize)
+	{
+		Memories.push_back(CreateMemory());
+	}
 
 public:
 	~MemoryPool()
@@ -16,12 +22,16 @@ public:
 		Memories.clear();
 	}
 
+public:
+	FORCEINLINE size_t GetGroupSize() const { return GroupSize; }
+
+
 private:
-	MemoryPool() = delete;
-	MemoryPool(size_t InSize, size_t InGroupSize) : Size(InSize), GroupSize(InGroupSize)
-	{
-		Memories.push_back(CreateMemory());
-	}
+	void* CreateMemory();
+
+public:
+	void* Allocate();
+	void Free(void** InMemory);
 
 
 private:
@@ -31,13 +41,4 @@ private:
 private:
 	std::vector<void*> Memories;
 	std::queue<void*> UnAllocateMemory;
-
-private:
-	void* CreateMemory();
-
-public:
-	void* Allocate();
-	void Free(void** InMemory);
-
-	FORCEINLINE size_t GetGroupSize() const { return GroupSize; }
 };

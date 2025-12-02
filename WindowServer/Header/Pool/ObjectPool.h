@@ -2,23 +2,8 @@
 #include "MemoryPool.h"
 
 template<typename TYPE>
-class ObjectPool
+class ObjectPool 
 {
-
-public:
-	static std::shared_ptr<ObjectPool> CreateObjectPool(MemoryPool* InMemoryPool);
-
-	~ObjectPool()
-	{
-		CloseHandle(AllocationMutex);
-		InterlockedFlushSList(&UnAllocateObjectList);
-		for (int i = 0; i < HeadMemory.size(); i ++)
-		{
-			MemoryPool->Free(&HeadMemory[i]);
-		}
-	}
-
-
 private:
 	ObjectPool(MemoryPool* InMemoryPool) :
 		TypeSize(sizeof(TYPE)), MemoryPool(InMemoryPool)
@@ -34,23 +19,42 @@ private:
 		AllocateMemory();
 	}
 
+public:
+
+	~ObjectPool()
+	{
+		CloseHandle(AllocationMutex);
+		InterlockedFlushSList(&UnAllocateObjectList);
+		for (int i = 0; i < HeadMemory.size(); i ++)
+		{
+			MemoryPool->Free(&HeadMemory[i]);
+		}
+	}
+
+public:
+	static std::shared_ptr<ObjectPool> CreateObjectPool(MemoryPool* InMemoryPool);
+
+public:
+	std::vector<TYPE*>	AllocateObjects(size_t size);
+	TYPE* AllocateObject();
+	void  FreeObject(TYPE** InObject);
+
+private:
+	void AllocateMemory();
+
 private:
 	const size_t TypeSize;
 
 private:
-	MemoryPool* MemoryPool;
 	std::vector<void*> HeadMemory;
+	MemoryPool* MemoryPool;
 
-	__declspec(align(16)) SLIST_HEADER UnAllocateObjectList;
+
+	__declspec(align(16))
+	SLIST_HEADER UnAllocateObjectList;
 	HANDLE AllocationMutex;
 
-public:
-	TYPE* AllocateObject();
-	std::vector<TYPE*> AllocateObjects(size_t size);
-	void FreeObject(TYPE** InObject);
 
-private:
-	void AllocateMemory();
 };
 
 template <typename TYPE>

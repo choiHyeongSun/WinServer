@@ -9,6 +9,15 @@ public:
 
 private:
 	ThreadPool(size_t InThreadMaxNum, size_t InJobMaxCapacity);
+
+public:
+	bool SubmitJob(const std::function<void()>& InJob);
+	bool IsHasJobs() const;
+	void WaitForAllThreas();
+	void EndThreadPool();
+
+private:
+	std::function<void()> GetNextJob();
 	
 private:
 	size_t MaxThreadNum;
@@ -24,14 +33,6 @@ private:
 
 
 	bool IsFinish;
-public:
-	bool SubmitJob(const std::function<void()>& InJob);
-	bool IsHasJobs() const;
-	void WaitForAllThreas();
-	void EndThreadPool();
-
-private:
-	std::function<void()> GetNextJob();
 
 private:
 	friend DWORD WINAPI ThreadProc(LPVOID LpParam);

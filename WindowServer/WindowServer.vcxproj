@@ -27,11 +27,22 @@
     <ClCompile Include="Source\Pool\MemoryPool.cpp" />
     <ClCompile Include="Source\Pool\ObjectPool.cpp" />
     <ClCompile Include="Source\Pool\ThreadPool.cpp" />
+    <ClCompile Include="Source\Server\ListenSocket.cpp" />
+    <ClCompile Include="Source\Server\BlockingSock.cpp" />
+    <ClCompile Include="Source\Server\BlockSocketWrapper.cpp" />
+    <ClCompile Include="Source\Server\UDPSocket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\Interfaces\INetworkSession.h" />
     <ClInclude Include="Header\Pool\MemoryPool.h" />
     <ClInclude Include="Header\Pool\ObjectPool.h" />
+    <ClInclude Include="Header\Pool\PoolingManager.h" />
     <ClInclude Include="Header\Pool\ThreadPool.h" />
+    <ClInclude Include="Header\Server\BlockingSock.h" />
+    <ClInclude Include="Header\Server\ListenSocket.h" />
+    <ClInclude Include="Header\Server\Sock.h" />
+    <ClInclude Include="Header\Server\BlockSocketWrapper.h" />
+    <ClInclude Include="Header\Server\UDPSocket.h" />
     <ClInclude Include="MainPCH.h" />
     <ClInclude Include="ServerApp.h" />
   </ItemGroup>
@@ -127,11 +138,12 @@
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>MainPCH.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>.\Header;.\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\Header;.\;..\;%BOOST_ROOT%;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%BOOST_ROOT%/stage/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

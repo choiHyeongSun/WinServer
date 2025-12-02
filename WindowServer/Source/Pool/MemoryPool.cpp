@@ -15,6 +15,11 @@ std::shared_ptr<MemoryPool> MemoryPool::CreateMemoryPool(size_t InSize, size_t I
 void* MemoryPool::CreateMemory()
 {
 	void* memory = _aligned_malloc(Size, MEMORY_ALLOCATION_ALIGNMENT);
+	if (memory == nullptr)
+	{
+		std::cout << "allocate error" << std::endl;
+		exit(-1);
+	}
 	memset(memory, 0, Size);
 
 	size_t index = 0;
