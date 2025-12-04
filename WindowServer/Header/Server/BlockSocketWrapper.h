@@ -3,7 +3,10 @@
 
 #include "Sock.h"
 #include "boost/functional/hash.hpp"
+#include "Interfaces/ISocketWrapper.h"
 
+struct PacketHeader;
+class BlockingTCPSocket;
 class INetworkSession;
 class ListenSocket;
 class UDPSocket;
@@ -20,7 +23,7 @@ enum class PROTOCOL_TYPE : UINT8
 };
 
 
-class BlockSocketWrapper
+class BlockSocketWrapper : public ISocketWrapper
 {
 private:
 	struct UDPClientInfo
@@ -54,33 +57,47 @@ private:
 	BlockSocketWrapper() {}
 
 public:
-	static std::shared_ptr<BlockSocketWrapper> CreateSocketWrapper(PROTOCOL_TYPE protocol_type);
-
+	static std::shared_ptr<BlockSocketWrapper> CreateSocketWrapper(PROTOCOL_TYPE protocol_type, std::string startMessage = "");
 
 public:
-	void Broadcast(void* msg, INT32 msgLen, INT32 flag);
-	void GroupBroadcast(INT32 groupID, void* msg, INT32 msgLen, INT32 flag);
-	void PrivateMessage(INT32 userID, void* msg, INT32 msgLen, INT32 flag);
+	FORCEINLINE PROTOCOL_TYPE getProtocolType() { return ProtocolType; }
+
+public:
+	virtual void Broadcast(const char* msg, INT32 msgLen, INT32 flag) const override;
+	virtual void GroupBroadcast(UINT32 groupID, const char* msg, INT32 msgLen, INT32 flag) override;
+	virtual void PrivateMessage(UINT32 userID, const char* msg, INT32 msgLen, INT32 flag) override;
+	virtual void AcceptClient(std::function<void(UINT32 userID)> connectCallback = nullptr) override;
+	virtual INT32 RecvMessage(UINT32 userID, char* buffer, size_t bufferSize) override;
+	virtual void RecvMessageHeader(UINT32 userID, PacketHeader* packetHeader) override;
+	virtual void EntryGroup(UINT32 groupID, UINT32 userID) override;
+	virtual void ExitGroup(UINT32 groupID, UINT32 userID) override;
+	virtual bool IsGroupMember(UINT32 userId, UINT32 groupId) override;
+	virtual void CloseSocket(UINT32 userID) override;
+
 
 private:
-	void InitSocketWrapper(PROTOCOL_TYPE protocol_type);
-	void AcceptClient(std::function<void(UINT32 userID)> connectCallback = nullptr);
-	bool IsGroupMember(UINT32 userId, UINT32 groupId);
-	
+	void InitSocketWrapper(PROTOCOL_TYPE protocol_type, std::string startMessage);
 
 private:
 	WSADATA Wsadata;
 
-	PROTOCOL_TYPE ProtocolType;
 
 	std::shared_ptr<ListenSocket> ListenSock;
 	std::shared_ptr<UDPSocket> UdpSock;
 
-	std::unordered_map<UINT32, std::unordered_set<INetworkSession*>> GroupNetworkSessions;
+	std::unordered_map<UINT32, std::unordered_set<const INetworkSession*>> GroupNetworkSessions;
 	std::unordered_map<UINT32, std::unordered_set<UDPClientInfo, UDPClinetInfoHasher>> GroupUdpClients;
-	std::unordered_map<UINT32, INetworkSession*> AllNetworkSessions;
+	std::unordered_map<UINT32, const INetworkSession*> AllNetworkSessions;
 	std::unordered_map<UINT32, UDPClientInfo> AllUdpClients;
 
+	std::unordered_map<UINT32 ,std::shared_ptr<BlockingTCPSocket>> AllSockets;
+
+	HANDLE NetworkSessionMutex;
+	HANDLE UdpClientMutex;
+
+
 	UINT32 LastUserID= 0;
+
+	PROTOCOL_TYPE ProtocolType;
 };
 

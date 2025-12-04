@@ -53,8 +53,6 @@ private:
 	__declspec(align(16))
 	SLIST_HEADER UnAllocateObjectList;
 	HANDLE AllocationMutex;
-
-
 };
 
 template <typename TYPE>
@@ -78,16 +76,7 @@ TYPE* ObjectPool<TYPE>::AllocateObject()
 		element = InterlockedPopEntrySList(&UnAllocateObjectList);
 		if (element != nullptr) break;
 
-
-
-		DWORD dwWaitResult = WaitForSingleObject(AllocationMutex, INFINITE);
-		if (dwWaitResult == WAIT_FAILED)
-		{
-			DWORD errorCode = GetLastError();
-			printf("Wait failed. Error code: %lu\n", errorCode);
-			exit(-1);
-		}
-
+		MUTEX_CHECK(WaitForSingleObject(AllocationMutex, INFINITE));
 		USHORT depth = QueryDepthSList(&UnAllocateObjectList);
 		if (depth == 0)
 		{

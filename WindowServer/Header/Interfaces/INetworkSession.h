@@ -3,7 +3,7 @@
 class INetworkSession
 {
 public:
-	virtual void SendMsg(void* msg, int msgLen, int flag) const { }
-	virtual void SendMsg(SOCKADDR* sock, void* msg, int msgLen, int flag) const {}
-	virtual void* RecvMsg() const { return nullptr; }
+	virtual void SendMsg(const char* msg, INT32 msgLen, INT32 flag) const { }
+	virtual void SendMsg(SOCKADDR* sock, void* msg, INT32 msgLen, INT32 flag) const {}
+	virtual INT32 RecvMsg(char* buffer, size_t bufferSize, INT32 flag) const { return 0; }
 };

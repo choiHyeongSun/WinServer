@@ -28,6 +28,30 @@
     <Filter Include="Header\Databases">
       <UniqueIdentifier>{8bc8cf85-ef3f-487c-b227-df78a0195efc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header\Controllers">
+      <UniqueIdentifier>{f941241e-29e7-4c14-9c14-010f1b435cb1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Repositories">
+      <UniqueIdentifier>{f90d6c5e-cd06-4315-99b9-a8f4c3e739ec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Services">
+      <UniqueIdentifier>{804e599c-d902-44d4-8b0a-46f8c122b6ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Controllers">
+      <UniqueIdentifier>{e6f59944-992b-4952-82f8-01bde1a6d72b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Repositories">
+      <UniqueIdentifier>{426845a1-8e45-4478-92e7-6ae6f9a87fe1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Services">
+      <UniqueIdentifier>{66995cb3-41b6-45bf-bd98-646343b8de5e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header\Managers">
+      <UniqueIdentifier>{3e92ad0b-606b-49dd-9687-7a3fa39bc6b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Managers">
+      <UniqueIdentifier>{757e5f78-7939-4501-bb27-3cc85deff56a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -59,6 +83,18 @@
     </ClCompile>
     <ClCompile Include="Source\Server\UDPSocket.cpp">
       <Filter>Source\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\RecvManager.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\LoginController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\TestController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\ControllerManager.cpp">
+      <Filter>Source\Managers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +133,30 @@
     </ClInclude>
     <ClInclude Include="Header\Server\UDPSocket.h">
       <Filter>Header\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\SendMsgTypes.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Interfaces\IRecvMessage.h">
+      <Filter>Header\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Managers\RecvManager.h">
+      <Filter>Header\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\LoginController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\TestController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Managers\ControllerManager.h">
+      <Filter>Header\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\Controller.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Interfaces\ISocketWrapper.h">
+      <Filter>Header\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

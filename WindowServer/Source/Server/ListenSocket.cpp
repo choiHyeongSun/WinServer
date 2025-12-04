@@ -12,6 +12,7 @@ void ListenSocket::InitSocket(addrinfo hint)
 		WSACleanup();
 		exit(-1);
 	}
+	std::cout << "INFO: getaddrinfo Success" << std::endl;
 	
 	Socket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
 	if (Socket == INVALID_SOCKET)
@@ -21,7 +22,7 @@ void ListenSocket::InitSocket(addrinfo hint)
 		WSACleanup();
 		exit(-1);
 	}
-	
+
 	iResult = bind(Socket, result->ai_addr, result->ai_addrlen);
 	if (iResult != 0)
 	{
@@ -41,5 +42,6 @@ void ListenSocket::InitSocket(addrinfo hint)
 		exit(-1);
 	}
 
+	std::cout << "INFO: Listen Socket Success" << std::endl;
 	ServerAddr = result;
 }

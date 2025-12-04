@@ -81,14 +81,8 @@ ThreadPool::~ThreadPool()
 
 bool ThreadPool::SubmitJob(const std::function<void()>& InJob)
 {
-	DWORD dwWaitResult = WaitForSingleObject(Mutex, INFINITE);
-	if (dwWaitResult == WAIT_FAILED)
-	{
-		DWORD errorCode = GetLastError();
-		printf("Wait failed. Error code: %lu\n", errorCode);
-		exit(-1);
-	}
 
+	MUTEX_CHECK(WaitForSingleObject(Mutex, INFINITE));
 	if (Jobs.size() >= JobMaxCapacity)
 	{
 		ReleaseMutex(Mutex);
@@ -105,13 +99,7 @@ bool ThreadPool::SubmitJob(const std::function<void()>& InJob)
 
 std::function<void()> ThreadPool::GetNextJob()
 {
-	DWORD dwWaitResult = WaitForSingleObject(Mutex, INFINITE);
-	if (dwWaitResult == WAIT_FAILED)
-	{
-		DWORD errorCode = GetLastError();
-		printf("Wait failed. Error code: %lu\n", errorCode);
-		exit(-1);
-	}
+	MUTEX_CHECK(WaitForSingleObject(Mutex, INFINITE));
 	if (Jobs.empty())
 	{
 		ReleaseMutex(Mutex);

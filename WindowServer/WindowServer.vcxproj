@@ -23,7 +23,11 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ServerApp.cpp" />
+    <ClCompile Include="Source\Controllers\LoginController.cpp" />
+    <ClCompile Include="Source\Controllers\TestController.cpp" />
     <ClCompile Include="Source\Main.cpp" />
+    <ClCompile Include="Source\Managers\ControllerManager.cpp" />
+    <ClCompile Include="Source\Managers\RecvManager.cpp" />
     <ClCompile Include="Source\Pool\MemoryPool.cpp" />
     <ClCompile Include="Source\Pool\ObjectPool.cpp" />
     <ClCompile Include="Source\Pool\ThreadPool.cpp" />
@@ -33,11 +37,19 @@
     <ClCompile Include="Source\Server\UDPSocket.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Header\Controllers\Controller.h" />
+    <ClInclude Include="Header\Controllers\LoginController.h" />
+    <ClInclude Include="Header\Controllers\TestController.h" />
     <ClInclude Include="Header\Interfaces\INetworkSession.h" />
+    <ClInclude Include="Header\Interfaces\IRecvMessage.h" />
+    <ClInclude Include="Header\Interfaces\ISocketWrapper.h" />
+    <ClInclude Include="Header\Managers\ControllerManager.h" />
+    <ClInclude Include="Header\Managers\RecvManager.h" />
     <ClInclude Include="Header\Pool\MemoryPool.h" />
     <ClInclude Include="Header\Pool\ObjectPool.h" />
     <ClInclude Include="Header\Pool\PoolingManager.h" />
     <ClInclude Include="Header\Pool\ThreadPool.h" />
+    <ClInclude Include="Header\SendMsgTypes.h" />
     <ClInclude Include="Header\Server\BlockingSock.h" />
     <ClInclude Include="Header\Server\ListenSocket.h" />
     <ClInclude Include="Header\Server\Sock.h" />

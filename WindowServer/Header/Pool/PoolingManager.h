@@ -5,19 +5,34 @@
 template<class TYPE>
 class PoolingManager
 {
+public:
+	~PoolingManager()
+	{
+		if (ObjectManager != nullptr)
+			ObjectManager.reset();
+	}
 
 public:
 	static void CreateObjectPoolManager(size_t InSize, size_t InGroupSize);
 	static void FreeObject(TYPE** Obj);
+	static void FreeObject(void** Obj);
 	static TYPE* GenerateObject();
 
 private:
 	static std::unique_ptr<PoolingManager<TYPE>> ObjectManager;
 
+	static const size_t MemoryPoolSize;
+	static const size_t MemoryPoolGroup;
+
 private:
 	std::shared_ptr<MemoryPool> MemoryPooling = nullptr;
 	std::shared_ptr<ObjectPool<TYPE>> ObjectPooling = nullptr;
 };
+
+template<class TYPE>
+const size_t PoolingManager<TYPE>::MemoryPoolSize = 1024ull * 1024ull;
+template<class TYPE>
+const size_t PoolingManager<TYPE>::MemoryPoolGroup = 1024ull;
 
 
 template <class TYPE>
@@ -44,8 +59,21 @@ void PoolingManager<TYPE>::FreeObject(TYPE** Obj)
 }
 
 template <class TYPE>
+void PoolingManager<TYPE>::FreeObject(void** Obj)
+{
+	TYPE* casting = static_cast<TYPE*>((*Obj));
+	ObjectManager->ObjectPooling->FreeObject(&casting);
+	(*Obj) = nullptr;
+}
+
+template <class TYPE>
 TYPE* PoolingManager<TYPE>::GenerateObject()
 {
+	if (ObjectManager == nullptr)
+	{
+		CreateObjectPoolManager(MemoryPoolSize, MemoryPoolGroup);
+	}
+
 	TYPE* obj = ObjectManager->ObjectPooling->AllocateObject();
 	if (obj == nullptr)
 	{
