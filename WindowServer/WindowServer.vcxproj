@@ -19,42 +19,62 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Header\Services\JoinService.cpp" />
     <ClCompile Include="MainPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ServerApp.cpp" />
+    <ClCompile Include="Source\Controllers\JoinController.cpp" />
     <ClCompile Include="Source\Controllers\LoginController.cpp" />
     <ClCompile Include="Source\Controllers\TestController.cpp" />
+    <ClCompile Include="Source\Databases\DatabaseWrapper.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Managers\ControllerManager.cpp" />
+    <ClCompile Include="Source\Managers\DatabaseManager.cpp" />
     <ClCompile Include="Source\Managers\RecvManager.cpp" />
+    <ClCompile Include="Source\Managers\RepositoryManager.cpp" />
+    <ClCompile Include="Source\Pool\DatabasePool.cpp" />
     <ClCompile Include="Source\Pool\MemoryPool.cpp" />
     <ClCompile Include="Source\Pool\ObjectPool.cpp" />
     <ClCompile Include="Source\Pool\ThreadPool.cpp" />
+    <ClCompile Include="Source\Repositories\UserRepository.cpp" />
     <ClCompile Include="Source\Server\ListenSocket.cpp" />
     <ClCompile Include="Source\Server\BlockingSock.cpp" />
     <ClCompile Include="Source\Server\BlockSocketWrapper.cpp" />
     <ClCompile Include="Source\Server\UDPSocket.cpp" />
+    <ClCompile Include="Source\Services\ServiceManager.cpp" />
+    <ClCompile Include="Source\Services\LoginService.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\Controllers\Controller.h" />
+    <ClInclude Include="Header\Controllers\JoinController.h" />
     <ClInclude Include="Header\Controllers\LoginController.h" />
     <ClInclude Include="Header\Controllers\TestController.h" />
+    <ClInclude Include="Header\Databases\DatabaseWrapper.h" />
+    <ClInclude Include="Header\Entities\UserEntity.h" />
     <ClInclude Include="Header\Interfaces\INetworkSession.h" />
     <ClInclude Include="Header\Interfaces\IRecvMessage.h" />
+    <ClInclude Include="Header\Interfaces\IRepository.h" />
     <ClInclude Include="Header\Interfaces\ISocketWrapper.h" />
     <ClInclude Include="Header\Managers\ControllerManager.h" />
+    <ClInclude Include="Header\Managers\DatabaseManager.h" />
     <ClInclude Include="Header\Managers\RecvManager.h" />
+    <ClInclude Include="Header\Managers\RepositoryManager.h" />
+    <ClInclude Include="Header\Managers\ServiceManager.h" />
+    <ClInclude Include="Header\Pool\DatabasePool.h" />
     <ClInclude Include="Header\Pool\MemoryPool.h" />
     <ClInclude Include="Header\Pool\ObjectPool.h" />
     <ClInclude Include="Header\Pool\PoolingManager.h" />
     <ClInclude Include="Header\Pool\ThreadPool.h" />
+    <ClInclude Include="Header\Repositories\UserRepository.h" />
     <ClInclude Include="Header\SendMsgTypes.h" />
     <ClInclude Include="Header\Server\BlockingSock.h" />
     <ClInclude Include="Header\Server\ListenSocket.h" />
     <ClInclude Include="Header\Server\Sock.h" />
     <ClInclude Include="Header\Server\BlockSocketWrapper.h" />
     <ClInclude Include="Header\Server\UDPSocket.h" />
+    <ClInclude Include="Header\Services\JoinService.h" />
+    <ClInclude Include="Header\Services\LoginService.h" />
     <ClInclude Include="MainPCH.h" />
     <ClInclude Include="ServerApp.h" />
   </ItemGroup>
@@ -112,6 +132,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <PublicIncludeDirectories>.\Header;.\;$(PublicIncludeDirectories)</PublicIncludeDirectories>
+    <IncludePath>C:\Program Files\MySQL\MySQL Server 8.0\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files\MySQL\MySQL Server 8.0\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -156,6 +178,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>%BOOST_ROOT%/stage/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>libmysql.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

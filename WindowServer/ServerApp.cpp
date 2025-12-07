@@ -2,11 +2,15 @@
 #include "ServerApp.h"
 
 #include "SendMsgTypes.h"
-#include "Controllers/LoginController.h"
 #include "Header/Pool/PoolingManager.h"
 #include "Managers/ControllerManager.h"
 #include "Managers/RecvManager.h"
 #include "Pool/ThreadPool.h"
+#include "mysql.h"
+#include "Managers/DatabaseManager.h"
+#include "Managers/RepositoryManager.h"
+#include "Managers/ServiceManager.h"
+
 
 const size_t ServerApp::ThreadPoolMaxCount = 10;
 const size_t ServerApp::ThreadPoolMaxJobCount = 300;
@@ -32,6 +36,8 @@ DWORD WINAPI RecvProc(LPVOID LpParam)
 
 		//헤더 수신
 		sockWrapper->RecvMessageHeader(userId, &header->Data);
+		header->Data.MessageType = PacketBuilder::NtoHPacketType(header->Data.MessageType);
+		header->Data.MessageLen = ntohl(header->Data.MessageLen);
 		INT32 len = header->Data.MessageLen;
 		if (len < 0)
 		{
@@ -70,6 +76,7 @@ DWORD WINAPI RecvProc(LPVOID LpParam)
 	return 0;
 }
 
+//TCP 과정
 DWORD WINAPI AcceptProc(LPVOID LpParam)
 {
 	BlockSocketWrapper* sockWrapper = static_cast<BlockSocketWrapper*>(LpParam);
@@ -81,8 +88,10 @@ DWORD WINAPI AcceptProc(LPVOID LpParam)
 		{
 			std::cout << "Connected User ID : " << userID << std::endl;
 			EntryServer entryMsg;
-			entryMsg.MessageLen = sizeof(EntryServer);
-			entryMsg.UserLocalId = userID;
+			entryMsg.UserLocalId = htonl(entryMsg.UserLocalId);
+			entryMsg.MessageType = PacketBuilder::HtonPacketType(entryMsg.MessageType);
+			entryMsg.MessageLen = htonl(sizeof(entryMsg));
+
 			sockWrapper->PrivateMessage(userID, reinterpret_cast<const char*>(&entryMsg), sizeof(entryMsg), 0);
 
 			UserRecvThreadParam* recvParam = PoolingManager<UserRecvThreadParam>::GenerateObject();
@@ -98,8 +107,17 @@ DWORD WINAPI AcceptProc(LPVOID LpParam)
 
 ServerApp::ServerApp()
 {
+	DatabaseManager::CreateInstance();
+	RepositoryManager::CreateInstance();
+	ServiceManager::CreateInstance();
 	ControllerManager::CreateInstance();
+
+	DatabaseManager::getInstance()->Initialize("127.0.0.1", "root", "1234", "WindowServerDB", 3306);
+	RepositoryManager::getInstance()->InitializeRepository();
+	ServiceManager::getInstance()->InitializationService();
 	ControllerManager::getInstance()->InitializeControllers();
+
+
 	std::shared_ptr<ThreadPool> threadpool = ThreadPool::CreateThreadPool(ThreadPoolMaxCount, ThreadPoolMaxJobCount);
 
 	threadpool->WaitForAllThreas();
@@ -109,13 +127,12 @@ ServerApp::ServerApp()
 		AcceptThread = CreateThread(nullptr, 0, AcceptProc, sockWrapper.get(), 0, nullptr);
 	}
 
-	ControllerManager::DestroyInstance();
 }
 
 ServerApp::~ServerApp()
 {
-	LoginController::DestroyInstance();
-	RecvManager::DestroyInstance();
+	ControllerManager::DestroyInstance();
+	DatabaseManager::DestroyInstance();
 }
 
 INT32 ServerApp::Run()

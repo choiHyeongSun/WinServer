@@ -52,6 +52,9 @@
     <Filter Include="Source\Managers">
       <UniqueIdentifier>{757e5f78-7939-4501-bb27-3cc85deff56a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header\Entities">
+      <UniqueIdentifier>{4a459a97-0294-49b5-92d6-0a77326d624f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source\Main.cpp">
@@ -95,6 +98,33 @@
     </ClCompile>
     <ClCompile Include="Source\Managers\ControllerManager.cpp">
       <Filter>Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Databases\DatabaseWrapper.cpp">
+      <Filter>Source\Databases</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\DatabaseManager.cpp">
+      <Filter>Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\RepositoryManager.cpp">
+      <Filter>Source\Repositories</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Repositories\UserRepository.cpp">
+      <Filter>Source\Repositories</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\JoinController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\LoginService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\ServiceManager.cpp">
+      <Filter>Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Header\Services\JoinService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Pool\DatabasePool.cpp">
+      <Filter>Source\Pool</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -157,6 +187,39 @@
     </ClInclude>
     <ClInclude Include="Header\Interfaces\ISocketWrapper.h">
       <Filter>Header\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Databases\DatabaseWrapper.h">
+      <Filter>Header\Databases</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Managers\DatabaseManager.h">
+      <Filter>Header\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Managers\RepositoryManager.h">
+      <Filter>Header\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Repositories\UserRepository.h">
+      <Filter>Header\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Interfaces\IRepository.h">
+      <Filter>Header\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Entities\UserEntity.h">
+      <Filter>Header\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\JoinController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\LoginService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Managers\ServiceManager.h">
+      <Filter>Header\Managers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\JoinService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Pool\DatabasePool.h">
+      <Filter>Header\Pool</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

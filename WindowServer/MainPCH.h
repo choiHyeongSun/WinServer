@@ -41,22 +41,54 @@ public: \
 	{ \
 		return instance; \
 	}\
-	static void CreateInstance() \
+	static void CreateInstance(); \
+	static void DestroyInstance(); \
+
+
+
+#define SINGLETON_CLASS_CPP(CLASS_NAME) \
+	std::shared_ptr<CLASS_NAME> CLASS_NAME::instance = nullptr; \
+		\
+	void CLASS_NAME::CreateInstance()\
 	{ \
 		if (instance == nullptr) \
 		{ \
 			instance = std::shared_ptr<CLASS_NAME>(new CLASS_NAME()); \
 		} \
 	} \
-	static void DestroyInstance() \
+	void CLASS_NAME::DestroyInstance()\
 	{ \
 		instance.reset(); \
-	}
+	} \
+
+#define SERVICE_CLASS_H(CLASS_NAME) \
+private: \
+	CLASS_NAME() {} \
+	static std::shared_ptr<CLASS_NAME> instance; \
+public: \
+	static std::shared_ptr<CLASS_NAME> getInstance() \
+	{ \
+		return instance; \
+	}\
+	static void CreateInstance(); \
+	static void DestroyInstance(); \
 
 
-#define SINGLETON_CLASS_CPP(CLASS_NAME) \
-	std::shared_ptr<CLASS_NAME> CLASS_NAME::instance = nullptr;
 
+#define SERVICE_CLASS_CPP(CLASS_NAME) \
+	std::shared_ptr<CLASS_NAME> CLASS_NAME::instance = nullptr; \
+		\
+	void CLASS_NAME::CreateInstance()\
+	{ \
+		if (instance == nullptr) \
+		{ \
+			instance = std::shared_ptr<CLASS_NAME>(new CLASS_NAME()); \
+		} \
+	} \
+	void CLASS_NAME::DestroyInstance()\
+	{ \
+		instance.reset(); \
+	} \
 
 
 	
@@ -92,11 +124,46 @@ public: \
 	} \
 
 
+#define REPOSITORY_CLASS_H(CLASS_NAME) \
+private: \
+	CLASS_NAME() {} \
+	static std::shared_ptr<CLASS_NAME> instance; \
+public: \
+	static std::shared_ptr<CLASS_NAME> getInstance() \
+	{ \
+		return instance; \
+	}\
+	static void CreateInstance(); \
+	static void DestroyInstance(); \
+
+
+
+#define REPOSITORY_CLASS_CPP(CLASS_NAME) \
+	std::shared_ptr<CLASS_NAME> CLASS_NAME::instance = nullptr; \
+		\
+	void CLASS_NAME::CreateInstance()\
+	{ \
+		if (instance == nullptr) \
+		{ \
+			instance = std::shared_ptr<CLASS_NAME>(new CLASS_NAME()); \
+			instance->Initialization();\
+			instance->BindStmt();\
+		} \
+	} \
+	void CLASS_NAME::DestroyInstance()\
+	{ \
+		instance.reset(); \
+	} \
+
+
 
 #define PACKET_CHECKER(PACKET_HEADER) \
 	if (PACKET_HEADER == nullptr) return;\
 	if (messageType != PACKET_HEADER->MessageType) return;\
 
 
+#define INJECTION(CLASS_NAME, VALUE_NAME) \
+private:\
+	std::shared_ptr<CLASS_NAME> VALUE_NAME = CLASS_NAME::getInstance()
 
 

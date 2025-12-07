@@ -11,7 +11,7 @@ class RecvManager
 {
 
 private:
-	SINGLETON_CLASS_H(RecvManager);
+	SINGLETON_CLASS_H(RecvManager)
 	std::shared_mutex mutex;
 
 public:

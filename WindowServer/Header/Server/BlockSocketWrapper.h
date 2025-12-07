@@ -96,7 +96,7 @@ private:
 	HANDLE UdpClientMutex;
 
 
-	UINT32 LastUserID= 0;
+	UINT32 LastUserID = 1;
 
 	PROTOCOL_TYPE ProtocolType;
 };
