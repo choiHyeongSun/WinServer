@@ -19,14 +19,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Header\Services\JoinService.cpp" />
     <ClCompile Include="MainPCH.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="ServerApp.cpp" />
+    <ClCompile Include="Source\Controllers\Controller.cpp" />
+    <ClCompile Include="Source\Controllers\CreateChattingRoomController.cpp" />
+    <ClCompile Include="Source\Controllers\EntryRoomController.cpp" />
+    <ClCompile Include="Source\Controllers\EntryRoomCompareController.cpp" />
+    <ClCompile Include="Source\Controllers\ExitClientController.cpp" />
+    <ClCompile Include="Source\Controllers\ExitRoomController.cpp" />
     <ClCompile Include="Source\Controllers\JoinController.cpp" />
     <ClCompile Include="Source\Controllers\LoginController.cpp" />
-    <ClCompile Include="Source\Controllers\TestController.cpp" />
+    <ClCompile Include="Source\Controllers\LogoutController.cpp" />
+    <ClCompile Include="Source\Controllers\RequireRoomInfoController.cpp" />
+    <ClCompile Include="Source\Controllers\SendMessageController.cpp" />
     <ClCompile Include="Source\Databases\DatabaseWrapper.cpp" />
     <ClCompile Include="Source\Main.cpp" />
     <ClCompile Include="Source\Managers\ControllerManager.cpp" />
@@ -37,20 +44,41 @@
     <ClCompile Include="Source\Pool\MemoryPool.cpp" />
     <ClCompile Include="Source\Pool\ObjectPool.cpp" />
     <ClCompile Include="Source\Pool\ThreadPool.cpp" />
+    <ClCompile Include="Source\Repositories\ChattingRoomRepository.cpp" />
+    <ClCompile Include="Source\Repositories\MessageRepository.cpp" />
+    <ClCompile Include="Source\Repositories\RoomMemberRepository.cpp" />
     <ClCompile Include="Source\Repositories\UserRepository.cpp" />
     <ClCompile Include="Source\Server\ListenSocket.cpp" />
     <ClCompile Include="Source\Server\BlockingSock.cpp" />
     <ClCompile Include="Source\Server\BlockSocketWrapper.cpp" />
     <ClCompile Include="Source\Server\UDPSocket.cpp" />
+    <ClCompile Include="Source\Services\CreateChattingRoomService.cpp" />
+    <ClCompile Include="Source\Services\EntryRoomCompareService.cpp" />
+    <ClCompile Include="Source\Services\EntryRoomService.cpp" />
+    <ClCompile Include="Source\Services\ExitClientService.cpp" />
+    <ClCompile Include="Source\Services\ExitRoomService.cpp" />
+    <ClCompile Include="Source\Services\JoinService.cpp" />
+    <ClCompile Include="Source\Services\LogoutService.cpp" />
+    <ClCompile Include="Source\Services\RequireRoomInfoService.cpp" />
+    <ClCompile Include="Source\Services\SendMessageService.cpp" />
     <ClCompile Include="Source\Services\ServiceManager.cpp" />
     <ClCompile Include="Source\Services\LoginService.cpp" />
+    <ClCompile Include="Source\Utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header\Controllers\Controller.h" />
+    <ClInclude Include="Header\Controllers\CreateChattingRoomController.h" />
+    <ClInclude Include="Header\Controllers\EntryRoomController.h" />
+    <ClInclude Include="Header\Controllers\EntryRoomCompareController.h" />
+    <ClInclude Include="Header\Controllers\ExitClientController.h" />
+    <ClInclude Include="Header\Controllers\ExitRoomController.h" />
     <ClInclude Include="Header\Controllers\JoinController.h" />
     <ClInclude Include="Header\Controllers\LoginController.h" />
-    <ClInclude Include="Header\Controllers\TestController.h" />
+    <ClInclude Include="Header\Controllers\LogoutController.h" />
+    <ClInclude Include="Header\Controllers\RequireRoomInfoController.h" />
+    <ClInclude Include="Header\Controllers\SendMessageController.h" />
     <ClInclude Include="Header\Databases\DatabaseWrapper.h" />
+    <ClInclude Include="Header\Entities\ChattingRoomEntity.h" />
     <ClInclude Include="Header\Entities\UserEntity.h" />
     <ClInclude Include="Header\Interfaces\INetworkSession.h" />
     <ClInclude Include="Header\Interfaces\IRecvMessage.h" />
@@ -66,6 +94,9 @@
     <ClInclude Include="Header\Pool\ObjectPool.h" />
     <ClInclude Include="Header\Pool\PoolingManager.h" />
     <ClInclude Include="Header\Pool\ThreadPool.h" />
+    <ClInclude Include="Header\Repositories\ChattingRoomRepository.h" />
+    <ClInclude Include="Header\Repositories\MessageRepository.h" />
+    <ClInclude Include="Header\Repositories\RoomMemberRepository.h" />
     <ClInclude Include="Header\Repositories\UserRepository.h" />
     <ClInclude Include="Header\SendMsgTypes.h" />
     <ClInclude Include="Header\Server\BlockingSock.h" />
@@ -73,8 +104,17 @@
     <ClInclude Include="Header\Server\Sock.h" />
     <ClInclude Include="Header\Server\BlockSocketWrapper.h" />
     <ClInclude Include="Header\Server\UDPSocket.h" />
+    <ClInclude Include="Header\Services\CreateChattingRoomService.h" />
+    <ClInclude Include="Header\Services\EntryRoomCompareService.h" />
+    <ClInclude Include="Header\Services\EntryRoomService.h" />
+    <ClInclude Include="Header\Services\ExitClientService.h" />
+    <ClInclude Include="Header\Services\ExitRoomService.h" />
     <ClInclude Include="Header\Services\JoinService.h" />
     <ClInclude Include="Header\Services\LoginService.h" />
+    <ClInclude Include="Header\Services\LogoutService.h" />
+    <ClInclude Include="Header\Services\RequireRoomInfoService.h" />
+    <ClInclude Include="Header\Services\SendMessageService.h" />
+    <ClInclude Include="Header\Utility.h" />
     <ClInclude Include="MainPCH.h" />
     <ClInclude Include="ServerApp.h" />
   </ItemGroup>

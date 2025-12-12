@@ -11,12 +11,21 @@ struct alignas(16) PoolingObject
 enum class EMESSAGE_TYPE : UINT32
 {
 	NONE = 0,
-	TEST_PACKET,
 	ENTRY_SERVER,
 	LOGIN_PACKET,
 	JOIN_PACKET,
 	SEND_MESSAGE,
 	RESULT_MESSAGE,
+	LOGOUT_PACKET,
+	EXIT_CLIENT,
+	CREATE_ROOM,
+	SEND_ROOM,
+	ENTRY_ROOM_COMPARE,
+	ENTRY_ROOM,
+	EXIT_ROOM,
+	ENTRY_MEMBER,
+	EXIT_MEMBER,
+	REQUIRE_ROOM_INFO
 };
 
 enum class EMESSAGE_RESULT : UINT32
@@ -26,46 +35,122 @@ enum class EMESSAGE_RESULT : UINT32
 };
 
 
-
 #pragma pack(push, 1)
 struct PacketHeader
 {
 	PacketHeader() {}
-	PacketHeader(EMESSAGE_TYPE type) : MessageType(type) {}
-	INT32 MessageLen = 0;
-	EMESSAGE_TYPE MessageType = EMESSAGE_TYPE::NONE;
-};
-struct EntryServer : public PacketHeader
-{
-	EntryServer() : PacketHeader(EMESSAGE_TYPE::ENTRY_SERVER) {}
+	PacketHeader(EMESSAGE_TYPE type) : PacketType(type) {}
+	INT32 PacketLen = 0;
+	EMESSAGE_TYPE PacketType = EMESSAGE_TYPE::NONE;
 	UINT32 UserLocalId = 0;
 };
-struct TestPacket : public PacketHeader
+struct EntryServer : PacketHeader
 {
-	TestPacket() : PacketHeader(EMESSAGE_TYPE::TEST_PACKET) {}
-	INT32 TestMessage[3000] = { 0 };
+	EntryServer() : PacketHeader(EMESSAGE_TYPE::ENTRY_SERVER) {}
 };
 
-struct LoginPacket : public PacketHeader
+struct LoginPacket : PacketHeader
 {
 	LoginPacket() : PacketHeader(EMESSAGE_TYPE::LOGIN_PACKET) {}
 	char UserID[64] = { 0 };
 	char Password[64] = { 0 };
 };
-struct JoinPacket : public PacketHeader
+struct JoinPacket : PacketHeader
 {
 	JoinPacket() : PacketHeader(EMESSAGE_TYPE::JOIN_PACKET) {}
 	char UserID[64] = { 0 };
 	char Password[64] = { 0 };
 	char Nickname[64] = { 0 };
 };
-struct ResultMessage : public PacketHeader
+struct SendMessagePacket : PacketHeader
 {
-	ResultMessage() : PacketHeader(EMESSAGE_TYPE::RESULT_MESSAGE) {}
+	SendMessagePacket() : PacketHeader(EMESSAGE_TYPE::SEND_MESSAGE) {}
+	INT32 RoomID = 0;
+	INT32 MessageCount = 0;
+	UINT32 MsgLen = 0;
+};
+struct ResultPacket : PacketHeader
+{
+	ResultPacket() : PacketHeader(EMESSAGE_TYPE::RESULT_MESSAGE) {}
 	EMESSAGE_TYPE PrevMessageType = EMESSAGE_TYPE::NONE;
 	EMESSAGE_RESULT ResultType = EMESSAGE_RESULT::SUCCESS;
-
+	char ResultMsg[256] = {0};
 };
+struct LogoutPacket: PacketHeader
+{
+	LogoutPacket() : PacketHeader(EMESSAGE_TYPE::LOGOUT_PACKET) {}
+};
+struct ExitClientPacket : PacketHeader
+{
+	ExitClientPacket() : PacketHeader(EMESSAGE_TYPE::EXIT_CLIENT) {}
+};
+struct CreateRoomPacket : PacketHeader
+{
+	CreateRoomPacket() : PacketHeader(EMESSAGE_TYPE::CREATE_ROOM) {}
+	char RoomName[256] = { 0 };
+	char Password[256] = { 0 };
+};
+struct SendRoomPacket: PacketHeader
+{
+	SendRoomPacket() : PacketHeader(EMESSAGE_TYPE::SEND_ROOM) {}
+	UINT32 Count = 0;
+	UINT32 ArrayBufferLen = 0;
+};
+struct EntryRoomComparePacket : PacketHeader
+{
+	EntryRoomComparePacket() : PacketHeader(EMESSAGE_TYPE::ENTRY_ROOM_COMPARE) {}
+	UINT32 RoomId = 0;
+};
+struct EntryRoomPacket : PacketHeader
+{
+	EntryRoomPacket() : PacketHeader(EMESSAGE_TYPE::ENTRY_ROOM) {}
+	UINT32 RoomId = 0;
+	char Password[256] = { 0 };
+};
+struct ExitRoomPacket : PacketHeader
+{
+	ExitRoomPacket() : PacketHeader(EMESSAGE_TYPE::EXIT_ROOM) {}
+	UINT32 RoomId = 0;
+};
+struct EntryMemberPacket : PacketHeader
+{
+	EntryMemberPacket() : PacketHeader(EMESSAGE_TYPE::ENTRY_MEMBER) {}
+	INT32 RoomID = 0;
+	INT32 MemberCount = 0;
+	INT32 RoomMemberLen = 0;
+};
+struct ExitMemberPacket : PacketHeader
+{
+	ExitMemberPacket() : PacketHeader(EMESSAGE_TYPE::EXIT_MEMBER) {}
+	INT32 RoomID = 0;
+	INT32 MemberCount = 0;
+	INT32 RoomMemberLen = 0;
+};
+struct RequireRoomInfoPacket : PacketHeader
+{
+	RequireRoomInfoPacket() : PacketHeader(EMESSAGE_TYPE::REQUIRE_ROOM_INFO) {}
+	INT32 RoomId = 0;
+};
+
+
+struct RoomInfoPacket
+{
+	INT32 roomID;
+	char roomName[256] = { 0 };
+};
+struct RoomMember
+{
+	INT32 userID;
+	char userName[256] = { 0 };
+};
+
+struct MessageHeader
+{
+	INT32 SendUserID = 0;
+	char UserName[256] = { 0 };
+	INT32 MsgLen = 0;
+};
+
 #pragma pack(pop)
 
 class PacketBuilder
@@ -77,8 +162,6 @@ public:
 		{
 		case EMESSAGE_TYPE::NONE:
 			return PoolingManager<PoolingObject<PacketHeader>>::GenerateObject();
-		case EMESSAGE_TYPE::TEST_PACKET:
-			return PoolingManager<PoolingObject<TestPacket>>::GenerateObject();
 		case EMESSAGE_TYPE::ENTRY_SERVER:
 			return PoolingManager<PoolingObject<EntryServer>>::GenerateObject();
 		case EMESSAGE_TYPE::LOGIN_PACKET:
@@ -86,7 +169,26 @@ public:
 		case EMESSAGE_TYPE::JOIN_PACKET:
 			return PoolingManager<PoolingObject<JoinPacket>>::GenerateObject();
 		case EMESSAGE_TYPE::RESULT_MESSAGE:
-			return PoolingManager<PoolingObject<ResultMessage>>::GenerateObject();
+			return PoolingManager<PoolingObject<ResultPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::LOGOUT_PACKET:
+			return PoolingManager<PoolingObject<LogoutPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::EXIT_CLIENT:
+			return PoolingManager<PoolingObject<ExitClientPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::CREATE_ROOM:
+			return PoolingManager<PoolingObject<CreateRoomPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::SEND_ROOM:
+			return PoolingManager<PoolingObject<SendRoomPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::ENTRY_ROOM_COMPARE:
+			return PoolingManager<PoolingObject<EntryRoomComparePacket>>::GenerateObject();
+		case EMESSAGE_TYPE::ENTRY_ROOM:
+			return PoolingManager<PoolingObject<EntryRoomPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::EXIT_ROOM:
+			return PoolingManager<PoolingObject<ExitRoomPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::ENTRY_MEMBER:
+			return PoolingManager<PoolingObject<EntryMemberPacket>>::GenerateObject();
+		case EMESSAGE_TYPE::REQUIRE_ROOM_INFO:
+			return PoolingManager<PoolingObject<RequireRoomInfoPacket>>::GenerateObject();
+
 		}
 		return nullptr;
 	}
@@ -98,8 +200,6 @@ public:
 		{
 		case EMESSAGE_TYPE::NONE:
 			PoolingManager<PoolingObject<PacketHeader>>::FreeObject(packet); break;
-		case EMESSAGE_TYPE::TEST_PACKET:
-			PoolingManager<PoolingObject<TestPacket>>::FreeObject(packet); break;
 		case EMESSAGE_TYPE::ENTRY_SERVER:
 			PoolingManager<PoolingObject<EntryServer>>::FreeObject(packet); break;
 		case EMESSAGE_TYPE::LOGIN_PACKET:
@@ -107,7 +207,25 @@ public:
 		case EMESSAGE_TYPE::JOIN_PACKET:
 			PoolingManager<PoolingObject<JoinPacket>>::FreeObject(packet); break;
 		case EMESSAGE_TYPE::RESULT_MESSAGE:
-			PoolingManager<PoolingObject<ResultMessage>>::FreeObject(packet); break;
+			PoolingManager<PoolingObject<ResultPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::LOGOUT_PACKET:
+			PoolingManager<PoolingObject<LogoutPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::EXIT_CLIENT:
+			PoolingManager<PoolingObject<ExitClientPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::CREATE_ROOM:
+			PoolingManager<PoolingObject<CreateRoomPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::SEND_ROOM:
+			PoolingManager<PoolingObject<SendRoomPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::ENTRY_ROOM_COMPARE:
+			PoolingManager<PoolingObject<EntryRoomComparePacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::ENTRY_ROOM:
+			PoolingManager<PoolingObject<EntryRoomPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::EXIT_ROOM:
+			PoolingManager<PoolingObject<ExitRoomPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::ENTRY_MEMBER:
+			PoolingManager<PoolingObject<EntryMemberPacket>>::FreeObject(packet); break;
+		case EMESSAGE_TYPE::REQUIRE_ROOM_INFO:
+			PoolingManager<PoolingObject<RequireRoomInfoPacket>>::FreeObject(packet); break;
 		}
 	}
 

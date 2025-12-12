@@ -15,4 +15,5 @@ public:
 	virtual void ExitGroup(UINT32 groupID, UINT32 userID) = 0;
 	virtual bool IsGroupMember(UINT32 userId, UINT32 groupId) = 0;
 	virtual void CloseSocket(UINT32 userID) = 0;
+	virtual INT32 CountGroup(UINT32 groupID) = 0;
 };

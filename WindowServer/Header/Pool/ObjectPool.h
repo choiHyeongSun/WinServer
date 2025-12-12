@@ -18,7 +18,6 @@ private:
 
 		AllocateMemory();
 	}
-
 public:
 
 	~ObjectPool()
@@ -73,16 +72,24 @@ TYPE* ObjectPool<TYPE>::AllocateObject()
 	PSLIST_ENTRY element = nullptr; 
 	while (true)
 	{
-		element = InterlockedPopEntrySList(&UnAllocateObjectList);
-		if (element != nullptr) break;
-
-		MUTEX_CHECK(WaitForSingleObject(AllocationMutex, INFINITE));
-		USHORT depth = QueryDepthSList(&UnAllocateObjectList);
-		if (depth == 0)
+		try
 		{
-			AllocateMemory();
+			element = InterlockedPopEntrySList(&UnAllocateObjectList);
+			if (element != nullptr) break;
+
+			MUTEX_CHECK(WaitForSingleObject(AllocationMutex, INFINITE));
+			USHORT depth = QueryDepthSList(&UnAllocateObjectList);
+			if (depth == 0)
+			{
+				AllocateMemory();
+			}
+			ReleaseMutex(AllocationMutex);
 		}
-		ReleaseMutex(AllocationMutex);
+		catch (std::exception e)
+		{
+			std::cout << e.what() << std::endl;
+		}
+		
 	}
 	
 	TYPE* resultObject = new(element) TYPE;
@@ -116,6 +123,7 @@ void ObjectPool<TYPE>::AllocateMemory()
 	if (memory == nullptr)
 	{
 		std::cout << "memory is empty" << std::endl;
+		return;
 	}
 	HeadMemory.push_back(memory);
 	size_t index = 0;

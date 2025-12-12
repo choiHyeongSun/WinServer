@@ -1,5 +1,7 @@
 #include "MainPCH.h"
 #include "Header/Controllers/LoginController.h"
+
+#include "Utility.h"
 #include "Managers/RecvManager.h"
 #include "Header/Repositories/UserRepository.h"
 #include "Interfaces/ISocketWrapper.h"
@@ -12,24 +14,38 @@ void LoginController::OnRecvMessage(UINT32 userID, const PacketHeader* packetHea
 
 	const PoolingObject<LoginPacket>* loginPacket = PacketBuilder::ConvertToPoolingObject<LoginPacket>(packet);
 
-	PoolingObject<ResultMessage>* resultPack = PacketBuilder::PacketBuild<ResultMessage>();
-	resultPack->Data.MessageType = PacketBuilder::HtonPacketType(resultPack->Data.MessageType);
-	resultPack->Data.PrevMessageType = PacketBuilder::HtonPacketType(packetHeader->MessageType);
-	resultPack->Data.MessageLen = htonl(sizeof(ResultMessage));
+	std::string msg;
 	if (loginService->Login(userID, loginPacket->Data.UserID, loginPacket->Data.Password))
 	{
-		resultPack->Data.ResultType = PacketBuilder::HtonPacketType(EMESSAGE_RESULT::SUCCESS);
-		std::cout << loginPacket->Data.UserID << " 로그인에 성공 했습니다." << std::endl;
+		msg = "로그인에 성공 했습니다.";
+		SendResult(socketWrapper, EMESSAGE_RESULT::SUCCESS, packetHeader, msg);
+
+		std::vector<RoomInfoPacket> roomInfoPackets;
+		if (loginService->FindAllChatRoom(roomInfoPackets))
+		{
+			INT32 packlen = sizeof(SendRoomPacket);
+			INT32 roomInfosLen = sizeof(RoomInfoPacket) * roomInfoPackets.size();
+			INT32 totalLen = packlen + roomInfosLen;
+			PoolingObject<SendRoomPacket>* sendRoomPacket = PacketBuilder::PacketBuild<SendRoomPacket>();
+
+			sendRoomPacket->Data.PacketType = PacketBuilder::HtonPacketType(sendRoomPacket->Data.PacketType);
+			sendRoomPacket->Data.PacketLen = htonl(totalLen);
+			sendRoomPacket->Data.UserLocalId = htonl(userID);
+
+			sendRoomPacket->Data.Count = htonl(roomInfoPackets.size());
+			sendRoomPacket->Data.ArrayBufferLen = htonl(roomInfosLen);
+
+			std::vector<char> buffer(totalLen);
+			memcpy_s(buffer.data(), totalLen, &sendRoomPacket->Data, packlen);
+			memcpy_s(buffer.data() + packlen, totalLen, roomInfoPackets.data(), roomInfosLen);
+
+			socketWrapper->PrivateMessage(userID, buffer.data(), totalLen, 0);
+			PacketBuilder::ReleasePacket<SendRoomPacket>(&sendRoomPacket);
+		}
 	}
 	else
 	{
-		resultPack->Data.ResultType = PacketBuilder::HtonPacketType(EMESSAGE_RESULT::FAILED);
-		std::cout << loginPacket->Data.UserID << " 로그인에 실패 했습니다." << std::endl;
+		msg = "로그인에 실패 했습니다.";
+		SendResult(socketWrapper, EMESSAGE_RESULT::FAILED, packetHeader, msg);
 	}
-
-	const char* buffer = reinterpret_cast<const char*>(&resultPack->Data);
-	size_t len = sizeof(ResultMessage);
-
-	socketWrapper->PrivateMessage(userID, buffer, len, 0);
-	PacketBuilder::ReleasePacket<ResultMessage>(&resultPack);
 }

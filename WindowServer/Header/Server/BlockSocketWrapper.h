@@ -73,10 +73,12 @@ public:
 	virtual void ExitGroup(UINT32 groupID, UINT32 userID) override;
 	virtual bool IsGroupMember(UINT32 userId, UINT32 groupId) override;
 	virtual void CloseSocket(UINT32 userID) override;
+	virtual INT32 CountGroup(UINT32 groupID) override;
 
 
 private:
 	void InitSocketWrapper(PROTOCOL_TYPE protocol_type, std::string startMessage);
+
 
 private:
 	WSADATA Wsadata;

@@ -18,6 +18,9 @@ public:
 	void SetUserID(UINT32 localUserID, INT32 userID);
 	void RegisterId(UINT32 localUserID, INT32 userID);
 	void RegisterId(UINT32 localUserID);
+	void UnRegisterUserID(UINT32 localUserID);
+	void UnRegisterLocalUserID(UINT32 localUserID);
+
 
 
 private:

@@ -112,6 +112,36 @@ void BlockSocketWrapper::CloseSocket(UINT32 userID)
 	}
 }
 
+INT32 BlockSocketWrapper::CountGroup(UINT32 groupID)
+{
+	if (ProtocolType == PROTOCOL_TYPE::TCP)
+	{
+		MUTEX_CHECK(WaitForSingleObject(NetworkSessionMutex, INFINITE));
+		if (GroupNetworkSessions.find(groupID) != GroupNetworkSessions.cend())
+		{
+			INT32 size = GroupNetworkSessions[groupID].size();
+			ReleaseMutex(NetworkSessionMutex);
+			return size;
+		}
+		ReleaseMutex(NetworkSessionMutex);
+		return -1;
+	}
+	if (ProtocolType == PROTOCOL_TYPE::UDP)
+	{
+		MUTEX_CHECK(WaitForSingleObject(UdpClientMutex, INFINITE));
+		if (GroupUdpClients.find(groupID) != GroupUdpClients.cend())
+		{
+			INT32 size = GroupUdpClients[groupID].size();
+			ReleaseMutex(UdpClientMutex);
+			return size;
+		}
+		ReleaseMutex(UdpClientMutex);
+		return -1;
+	}
+	return -1;
+
+}
+
 INT32 BlockSocketWrapper::RecvMessage(UINT32 userID, char* buffer, size_t bufferSize)
 {
 	MUTEX_CHECK(WaitForSingleObject(NetworkSessionMutex, INFINITE));
@@ -134,17 +164,17 @@ void BlockSocketWrapper::RecvMessageHeader(UINT32 userID, PacketHeader* packetHe
 	{
 		ReleaseMutex(NetworkSessionMutex);
 		std::cout << "User를 찾을 수 없습니다.";
-		packetHeader->MessageLen = -1;
+		packetHeader->PacketLen = -1;
 		return;
 	}
 	const INetworkSession* networkSession = AllNetworkSessions[userID];
 	ReleaseMutex(NetworkSessionMutex);
 
-	INT32 recv = networkSession->RecvMsg(reinterpret_cast<char*>(packetHeader), 8, MSG_PEEK);
+	INT32 recv = networkSession->RecvMsg(reinterpret_cast<char*>(packetHeader), sizeof(PacketHeader), MSG_PEEK);
 	if (recv <= 0)
 	{
 		std::cout << "recv error : " << GetLastError() << std::endl;
-		packetHeader->MessageLen = -1;
+		packetHeader->PacketLen = -1;
 		return;
 	}
 }
@@ -156,8 +186,7 @@ void BlockSocketWrapper::EntryGroup(UINT32 groupID, UINT32 userID)
 	case PROTOCOL_TYPE::TCP:
 	{
 		MUTEX_CHECK(WaitForSingleObject(NetworkSessionMutex, INFINITE));
-		if (AllNetworkSessions.find(userID) == AllNetworkSessions.cend() ||
-			GroupNetworkSessions.find(groupID) == GroupNetworkSessions.cend())
+		if (AllNetworkSessions.find(userID) == AllNetworkSessions.cend())
 		{
 			ReleaseMutex(NetworkSessionMutex);
 			return;
@@ -172,8 +201,7 @@ void BlockSocketWrapper::EntryGroup(UINT32 groupID, UINT32 userID)
 
 	case PROTOCOL_TYPE::UDP:
 		MUTEX_CHECK(WaitForSingleObject(UdpClientMutex, INFINITE));
-		if (AllUdpClients.find(userID) == AllUdpClients.cend() ||
-			GroupUdpClients.find(groupID) == GroupUdpClients.cend())
+		if (AllUdpClients.find(userID) == AllUdpClients.cend())
 		{
 			ReleaseMutex(UdpClientMutex);
 			return;
@@ -195,8 +223,7 @@ void BlockSocketWrapper::ExitGroup(UINT32 groupID, UINT32 userID)
 		if (IsGroupMember(userID, groupID))
 		{
 			MUTEX_CHECK(WaitForSingleObject(NetworkSessionMutex, INFINITE));
-			const INetworkSession* network = AllNetworkSessions[userID];
-			GroupNetworkSessions[groupID].erase(network);
+			GroupNetworkSessions[groupID].erase(AllNetworkSessions[userID]);
 			ReleaseMutex(NetworkSessionMutex);
 		}
 		break;

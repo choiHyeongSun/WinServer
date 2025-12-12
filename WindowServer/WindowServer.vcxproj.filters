@@ -93,9 +93,6 @@
     <ClCompile Include="Source\Controllers\LoginController.cpp">
       <Filter>Source\Controllers</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Controllers\TestController.cpp">
-      <Filter>Source\Controllers</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Managers\ControllerManager.cpp">
       <Filter>Source\Managers</Filter>
     </ClCompile>
@@ -104,9 +101,6 @@
     </ClCompile>
     <ClCompile Include="Source\Managers\DatabaseManager.cpp">
       <Filter>Source\Managers</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Managers\RepositoryManager.cpp">
-      <Filter>Source\Repositories</Filter>
     </ClCompile>
     <ClCompile Include="Source\Repositories\UserRepository.cpp">
       <Filter>Source\Repositories</Filter>
@@ -120,11 +114,77 @@
     <ClCompile Include="Source\Services\ServiceManager.cpp">
       <Filter>Source\Managers</Filter>
     </ClCompile>
-    <ClCompile Include="Header\Services\JoinService.cpp">
-      <Filter>Source\Services</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Pool\DatabasePool.cpp">
       <Filter>Source\Pool</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Utility.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\LogoutController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\LogoutService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\ExitClientController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Repositories\ChattingRoomRepository.cpp">
+      <Filter>Source\Repositories</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\CreateChattingRoomController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\CreateChattingRoomService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\Controller.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\EntryRoomCompareController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\JoinService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\ExitClientService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\EntryRoomCompareService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\EntryRoomController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\EntryRoomService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\ExitRoomController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\ExitRoomService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\RequireRoomInfoService.cpp">
+      <Filter>Source\Services</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\RequireRoomInfoController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Repositories\RoomMemberRepository.cpp">
+      <Filter>Source\Repositories</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Managers\RepositoryManager.cpp">
+      <Filter>Source\Managers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Repositories\MessageRepository.cpp">
+      <Filter>Source\Repositories</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Controllers\SendMessageController.cpp">
+      <Filter>Source\Controllers</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Services\SendMessageService.cpp">
+      <Filter>Source\Services</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -176,9 +236,6 @@
     <ClInclude Include="Header\Controllers\LoginController.h">
       <Filter>Header\Controllers</Filter>
     </ClInclude>
-    <ClInclude Include="Header\Controllers\TestController.h">
-      <Filter>Header\Controllers</Filter>
-    </ClInclude>
     <ClInclude Include="Header\Managers\ControllerManager.h">
       <Filter>Header\Managers</Filter>
     </ClInclude>
@@ -220,6 +277,69 @@
     </ClInclude>
     <ClInclude Include="Header\Pool\DatabasePool.h">
       <Filter>Header\Pool</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Utility.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\LogoutController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\LogoutService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\ExitClientController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\ExitClientService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Repositories\ChattingRoomRepository.h">
+      <Filter>Header\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Entities\ChattingRoomEntity.h">
+      <Filter>Header\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\CreateChattingRoomController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\CreateChattingRoomService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\EntryRoomCompareController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\EntryRoomCompareService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\EntryRoomController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\EntryRoomService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\ExitRoomController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\ExitRoomService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\RequireRoomInfoController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\RequireRoomInfoService.h">
+      <Filter>Header\Services</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Repositories\RoomMemberRepository.h">
+      <Filter>Header\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Repositories\MessageRepository.h">
+      <Filter>Header\Repositories</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Controllers\SendMessageController.h">
+      <Filter>Header\Controllers</Filter>
+    </ClInclude>
+    <ClInclude Include="Header\Services\SendMessageService.h">
+      <Filter>Header\Services</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

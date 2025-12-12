@@ -25,54 +25,22 @@ void UserRepository::Initialization()
 	DatabaseManager::GetDatabasePool()->PushWrapper(wrapper);
 }
 
-void UserRepository::BindStmt()
-{
-	InsertQuery = "INSERT INTO users (Username, Password, Nickname) VALUES (? ,? ,?)";
-	MYSQL_BIND mysql_bind;
-
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, Username, UserEntity::MAX_CHAR_LENGTH, &Username_len);
-	InsertBinds.push_back(mysql_bind);
-
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, Password, UserEntity::MAX_CHAR_LENGTH, &Password_len);
-	InsertBinds.push_back(mysql_bind);
-
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, Nickname, UserEntity::MAX_CHAR_LENGTH, &Nickname_len);
-	InsertBinds.push_back(mysql_bind);
-
-
-	//--------------------------FindUserByUsername_stmt--------------------------
-	FindUserByUsernameQuery = "SELECT* FROM users WHERE Username = ?";
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, Username, UserEntity::MAX_CHAR_LENGTH, &Username_len);
-	FindUserByUsernameBinds.push_back(mysql_bind);
-
-	//--------------------------FindUserByNickname_stmt--------------------------
-	FindUserByNicknameQuery = "SELECT* FROM users WHERE Nickname = ?";
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, Nickname, UserEntity::MAX_CHAR_LENGTH, &Nickname_len);
-	FindUserByNicknameBinds.push_back(mysql_bind);
-
-	//--------------------------FindUserByd_stmt--------------------------
-	FindUserByIdQuery = "SELECT * FROM users WHERE id = ?";
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_LONG, &UserID, sizeof(INT32));
-	FindUserByIdBinds.push_back(mysql_bind);
-
-	//--------------------------CanJoin_stmt--------------------------
-	CanJoinQuery = "SELECT EXISTS (SELECT 1 FROM users WHERE username = ? OR nickname = ?)";
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, Username, UserEntity::MAX_CHAR_LENGTH, &Username_len);
-	CanJoinBinds.push_back(mysql_bind);
-
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, Nickname, UserEntity::MAX_CHAR_LENGTH, &Nickname_len);
-	CanJoinBinds.push_back(mysql_bind);
-}
 
 bool UserRepository::FindUserByUsername(std::shared_ptr<DatabaseWrapper> wrapper, std::string username, UserEntity& outEntity)
 {
-	bool result = false;
-	MYSQL_STMT* stmt = wrapper->StmtBind(FindUserByUsernameQuery.c_str(), FindUserByUsernameBinds);
+	char username_buffer[UserEntity::MAX_CHAR_LENGTH] = { 0 };
+	UINT32 username_len = 0;
 
+	std::string query = "SELECT* FROM users WHERE Username = ?";
+
+	MYSQL_BIND mysql_bind = { 0 };
+	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, username_buffer, UserEntity::MAX_CHAR_LENGTH, &username_len);
+
+	bool result = false;
+	MYSQL_STMT* stmt = wrapper->StmtBind(query.c_str(), &mysql_bind);
 	{
-		std::unique_lock<std::shared_mutex> lock(UsernameMutex);
-		strcpy_s(Username, username.c_str());
-		Username_len = strlen(username.c_str());
+		memcpy_s(username_buffer, UserEntity::MAX_CHAR_LENGTH, username.c_str(), username.size());
+		username_len = strlen(username_buffer);
 		result = UniqueFind(stmt, outEntity);
 	}
 	
@@ -83,10 +51,16 @@ bool UserRepository::FindUserByUsername(std::shared_ptr<DatabaseWrapper> wrapper
 bool UserRepository::FindUserByUserID(std::shared_ptr<DatabaseWrapper> wrapper, INT32 userID, UserEntity& outEntity)
 {
 	bool result = false;
-	MYSQL_STMT* stmt = wrapper->StmtBind(FindUserByIdQuery.c_str(), FindUserByIdBinds);
+
+	INT32 userId_buffer = 0;
+	std::string query = "SELECT * FROM users WHERE id = ?";
+
+	MYSQL_BIND mysql_bind;
+	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_LONG, &userId_buffer, sizeof(INT32));
+
+	MYSQL_STMT* stmt = wrapper->StmtBind(query.c_str(), &mysql_bind);
 	{
-		std::unique_lock<std::shared_mutex> lock(UserIDMutex);
-		UserID = userID;
+		userId_buffer = userID;
 		result = UniqueFind(stmt, outEntity);
 	}
 
@@ -96,12 +70,20 @@ bool UserRepository::FindUserByUserID(std::shared_ptr<DatabaseWrapper> wrapper, 
 
 bool UserRepository::FindUserByNickname(std::shared_ptr<DatabaseWrapper> wrapper, std::string nickname, UserEntity& outEntity)
 {
+
+	char nickname_buffer[UserEntity::MAX_CHAR_LENGTH] = { 0 };
+	UINT32 nickname_len = 0;
+
+	std::string query = "SELECT* FROM users WHERE Nickname = ?";
+
+	MYSQL_BIND mysql_bind;
+	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, nickname_buffer, UserEntity::MAX_CHAR_LENGTH, &nickname_len);
+
 	bool result = false;
-	MYSQL_STMT* stmt = wrapper->StmtBind(FindUserByNicknameQuery.c_str(), FindUserByNicknameBinds);
+	MYSQL_STMT* stmt = wrapper->StmtBind(query.c_str(), &mysql_bind);
 	{
-		std::unique_lock<std::shared_mutex> lock(NicknameMutex);
-		strcpy_s(Nickname, nickname.c_str());
-		Nickname_len = strlen(nickname.c_str());
+		memcpy_s(nickname_buffer, UserEntity::MAX_CHAR_LENGTH, nickname.c_str(), nickname.size());
+		nickname_len = strlen(nickname.c_str());
 		result = UniqueFind(stmt, outEntity);
 	}
 
@@ -109,26 +91,59 @@ bool UserRepository::FindUserByNickname(std::shared_ptr<DatabaseWrapper> wrapper
 	return result;
 }
 
-bool UserRepository::CanJoin(std::shared_ptr<DatabaseWrapper> wrapper, std::string username, std::string nickname)
+bool UserRepository::IsExistUsername(std::shared_ptr<DatabaseWrapper> wrapper, std::string username)
 {
-	std::vector<MYSQL_BIND> binds;
-	MYSQL_BIND mysql_bind;
+	char username_buffer[UserEntity::MAX_CHAR_LENGTH] = { 0 };
+	UINT32 username_len = 0;
+
+	MYSQL_BIND in_mysql_bind;
+	std::string query = "SELECT EXISTS (SELECT 1 FROM users WHERE username = ?)";
+	DatabaseWrapper::SetBind(in_mysql_bind, MYSQL_TYPE_STRING, username_buffer, UserEntity::MAX_CHAR_LENGTH, &username_len);
+
+
+	MYSQL_BIND out_mysql_bind;
 	INT32 bindId;
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_LONG, &bindId, sizeof(INT32));
-	binds.push_back(mysql_bind);
+	DatabaseWrapper::SetBind(out_mysql_bind, MYSQL_TYPE_LONG, &bindId, sizeof(INT32));
 
-	MYSQL_STMT* stmt = wrapper->StmtBind(CanJoinQuery.c_str(), CanJoinBinds);
+	MYSQL_STMT* stmt = wrapper->StmtBind(query.c_str(), &in_mysql_bind);
 	{
-		std::unique_lock<std::shared_mutex> nameLock(UsernameMutex);
-		std::unique_lock<std::shared_mutex> nicknamelock(NicknameMutex);
+		memcpy_s(username_buffer, UserEntity::MAX_CHAR_LENGTH, username.c_str(), username.size());
+		username_len = strlen(username_buffer);
 
-		strcpy_s(Username, username.c_str());
-		strcpy_s(Nickname, nickname.c_str());
+		if (!DatabaseWrapper::ExecuteStmt(stmt, &out_mysql_bind))
+		{
+			return false;
+		}
+	}
 
-		Username_len = strlen(username.c_str());
-		Nickname_len = strlen(nickname.c_str());
+	if (DatabaseWrapper::FetchStmt(stmt) == false)
+	{
+		return false;
+	}
+	DatabaseWrapper::StmtClose(&stmt);
+	return bindId != 0;
+}
 
-		if (!DatabaseWrapper::ExecuteStmt(stmt, binds))
+bool UserRepository::IsExistUserNickname(std::shared_ptr<DatabaseWrapper> wrapper, std::string nickname)
+{
+	char nickname_buffer[UserEntity::MAX_CHAR_LENGTH] = { 0 };
+	UINT32 nickname_len = 0;
+
+	std::string query = "SELECT EXISTS (SELECT 1 FROM users WHERE nickname = ?)";
+	MYSQL_BIND in_mysql_bind;
+	DatabaseWrapper::SetBind(in_mysql_bind, MYSQL_TYPE_STRING, nickname_buffer, UserEntity::MAX_CHAR_LENGTH, &nickname_len);
+
+	std::vector<MYSQL_BIND> binds;
+	MYSQL_BIND out_mysql_bind;
+	INT32 bindId;
+	DatabaseWrapper::SetBind(out_mysql_bind, MYSQL_TYPE_LONG, &bindId, sizeof(INT32));
+
+	MYSQL_STMT* stmt = wrapper->StmtBind(query.c_str(), &in_mysql_bind);
+	{
+		strcpy_s(nickname_buffer, nickname.c_str());
+		nickname_len = strlen(nickname_buffer);
+
+		if (!DatabaseWrapper::ExecuteStmt(stmt, &out_mysql_bind))
 		{
 			return false;
 		}
@@ -137,27 +152,37 @@ bool UserRepository::CanJoin(std::shared_ptr<DatabaseWrapper> wrapper, std::stri
 	{
 		return false;
 	}
-	return bindId == 0;
+	DatabaseWrapper::StmtClose(&stmt);
+	return bindId != 0;
 }
 
 
 bool UserRepository::InsertUser(std::shared_ptr<DatabaseWrapper> wrapper, std::string username, std::string password, std::string nickname)
 {
+	std::vector<MYSQL_BIND> InsertBinds(3);
+	char username_buffer[UserEntity::MAX_CHAR_LENGTH] = { 0 };
+	char password_buffer[UserEntity::MAX_CHAR_LENGTH] = { 0 };
+	char nickname_buffer[UserEntity::MAX_CHAR_LENGTH] = { 0 };
 
-	MYSQL_STMT* stmt = wrapper->StmtBind(InsertQuery.c_str(), InsertBinds);
+	UINT32 username_len = 0;
+	UINT32 password_len = 0;
+	UINT32 nickname_len = 0;
+
+	std::string query = "INSERT INTO users (Username, Password, Nickname) VALUES (? ,? ,?)";
+
+	DatabaseWrapper::SetBind(InsertBinds[0], MYSQL_TYPE_STRING, username_buffer, UserEntity::MAX_CHAR_LENGTH, &username_len);
+	DatabaseWrapper::SetBind(InsertBinds[1], MYSQL_TYPE_STRING, password_buffer, UserEntity::MAX_CHAR_LENGTH, &password_len);
+	DatabaseWrapper::SetBind(InsertBinds[2], MYSQL_TYPE_STRING, nickname_buffer, UserEntity::MAX_CHAR_LENGTH, &nickname_len);
+
+	MYSQL_STMT* stmt = wrapper->StmtBind(query.c_str(), InsertBinds.data());
 	{
-		std::unique_lock<std::shared_mutex> nameLock(UsernameMutex);
-		std::unique_lock<std::shared_mutex> passwordLock(PasswordMutex);
-		std::unique_lock<std::shared_mutex> nicknamelock(NicknameMutex);
-
-		strcpy_s(Username, username.c_str());
-		strcpy_s(Password, password.c_str());
-		strcpy_s(Nickname, nickname.c_str());
-
-
-		Username_len = strlen(username.c_str());
-		Password_len = strlen(password.c_str());
-		Nickname_len = strlen(nickname.c_str());
+		memcpy_s(username_buffer, UserEntity::MAX_CHAR_LENGTH ,username.c_str(), username.size());
+		memcpy_s(password_buffer, UserEntity::MAX_CHAR_LENGTH ,password.c_str(), password.size());
+		memcpy_s(nickname_buffer, UserEntity::MAX_CHAR_LENGTH ,nickname.c_str(), username.size());
+	
+		username_len = strlen(username_buffer);
+		password_len = strlen(password_buffer);
+		nickname_len = strlen(nickname_buffer);
 		if (!DatabaseWrapper::ExecuteStmt(stmt))
 		{
 			return false;
@@ -175,19 +200,22 @@ bool UserRepository::UniqueFind(MYSQL_STMT* stmt, UserEntity& outUser) const
 	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_LONG, &userEntity.userID, sizeof(userEntity.userID));
 	binds.push_back(mysql_bind);
 
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, &userEntity.username, sizeof(UserEntity::MAX_CHAR_LENGTH));
+	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, &userEntity.username, UserEntity::MAX_CHAR_LENGTH);
 	binds.push_back(mysql_bind);
 
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, &userEntity.password, sizeof(UserEntity::MAX_CHAR_LENGTH));
+	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, &userEntity.password, UserEntity::MAX_CHAR_LENGTH);
 	binds.push_back(mysql_bind);
 
-	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, &userEntity.nickname, sizeof(UserEntity::MAX_CHAR_LENGTH));
+	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_STRING, &userEntity.nickname, UserEntity::MAX_CHAR_LENGTH);
 	binds.push_back(mysql_bind);
 
 	DatabaseWrapper::SetBind(mysql_bind, MYSQL_TYPE_DATETIME, &userEntity.created_at, sizeof(MYSQL_TIME));
 	binds.push_back(mysql_bind);
 
-	DatabaseWrapper::ExecuteStmt(stmt, binds);
+	if (!DatabaseWrapper::ExecuteStmt(stmt, binds.data()))
+	{
+		return false;
+	}
 	bool state = DatabaseWrapper::FetchStmt(stmt);
 	if (state)
 	{

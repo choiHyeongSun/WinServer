@@ -1,10 +1,11 @@
 #pragma once
+#include "Controller.h"
 #include "SendMsgTypes.h"
 #include "Interfaces/IRecvMessage.h"
 #include "Header/Repositories/UserRepository.h"
 #include "Services/JoinService.h"
 
-class JoinController : public IRecvMessage
+class JoinController : public Controller ,public IRecvMessage
 {
 private:
 	CONTROLLER_CLASS_H(JoinController, EMESSAGE_TYPE::JOIN_PACKET);

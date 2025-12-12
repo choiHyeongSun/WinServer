@@ -37,7 +37,7 @@ void DatabasePool::PushWrapper(std::shared_ptr<DatabaseWrapper>& database)
 	std::unique_lock<std::shared_mutex> lock(DatabasesMutex);
 	Databases.push(database);
 	database = nullptr;
-	if (!ReleaseSemaphore(DBSemaphore, 1, nullptr))
+	if (ReleaseSemaphore(DBSemaphore, 1, nullptr) == FALSE)
 	{
 		std::cout << "DBSemaphore Release Error" << std::endl;
 		return;

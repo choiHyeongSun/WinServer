@@ -147,7 +147,6 @@ public: \
 		{ \
 			instance = std::shared_ptr<CLASS_NAME>(new CLASS_NAME()); \
 			instance->Initialization();\
-			instance->BindStmt();\
 		} \
 	} \
 	void CLASS_NAME::DestroyInstance()\
@@ -159,7 +158,7 @@ public: \
 
 #define PACKET_CHECKER(PACKET_HEADER) \
 	if (PACKET_HEADER == nullptr) return;\
-	if (messageType != PACKET_HEADER->MessageType) return;\
+	if (messageType != PACKET_HEADER->PacketType) return;\
 
 
 #define INJECTION(CLASS_NAME, VALUE_NAME) \

@@ -15,6 +15,8 @@ std::shared_ptr<DatabaseWrapper> DatabaseWrapper::CreateDatabase()
 	return databaseWrapper;
 }
 
+
+
 void DatabaseWrapper::ConnectDB(const char* ip, const char* user, const char* password, const char* db, INT32 port)
 {
 	mysql_init(&Connector);
@@ -47,7 +49,6 @@ void DatabaseWrapper::CreateTable(const char* query) const
 	if (mysql_query(ConnectorPtr ,query))
 	{
 		std::cout << "Table Creation failed: " << mysql_error(ConnectorPtr) << std::endl;
-		return;
 	}
 }
 
@@ -57,9 +58,29 @@ void DatabaseWrapper::Transaction_Start() const
 	mysql_autocommit(ConnectorPtr, false);
 }
 
-void DatabaseWrapper::Transaction_End() const
+
+bool DatabaseWrapper::Transaction_End() const
+{
+	if (mysql_commit(ConnectorPtr))
+	{
+		std::cout << "commit failed : " << mysql_error(ConnectorPtr) << std::endl;
+		mysql_rollback(ConnectorPtr);
+		mysql_autocommit(ConnectorPtr, true);
+		return false;
+	}
+	mysql_autocommit(ConnectorPtr, true);
+	return true;
+}
+
+void DatabaseWrapper::SetAutoCommit() const
 {
 	mysql_autocommit(ConnectorPtr, true);
+}
+
+
+void DatabaseWrapper::RollBack() const
+{
+	mysql_rollback(ConnectorPtr);
 }
 
 void DatabaseWrapper::SendQuery(const char* query)
@@ -70,7 +91,7 @@ void DatabaseWrapper::SendQuery(const char* query)
 	}
 }
 
-MYSQL_STMT* DatabaseWrapper::StmtBind(const char* query , std::vector<MYSQL_BIND>& binds) const
+MYSQL_STMT* DatabaseWrapper::StmtBind(const char* query , MYSQL_BIND* binds) const
 {
 	MYSQL_STMT* mysql_stmt = mysql_stmt_init(ConnectorPtr);
 	if (mysql_stmt == nullptr)
@@ -85,11 +106,15 @@ MYSQL_STMT* DatabaseWrapper::StmtBind(const char* query , std::vector<MYSQL_BIND
 		return nullptr;
 	}
 
-	if (mysql_stmt_bind_param(mysql_stmt, binds.data()))
+	if (binds != nullptr)
 	{
-		std::cout << "stmt_prepare erorr : " << mysql_stmt_error(mysql_stmt) << std::endl;
-		return nullptr;
+		if (mysql_stmt_bind_param(mysql_stmt, binds))
+		{
+			std::cout << "stmt_prepare erorr : " << mysql_stmt_error(mysql_stmt) << std::endl;
+			return nullptr;
+		}
 	}
+
 	return mysql_stmt;
 }
 
@@ -104,7 +129,7 @@ bool DatabaseWrapper::ExecuteStmt(MYSQL_STMT* mysql_stmt)
 }
 
 
-bool DatabaseWrapper::ExecuteStmt(MYSQL_STMT* mysql_stmt, std::vector<MYSQL_BIND>& output)
+bool DatabaseWrapper::ExecuteStmt(MYSQL_STMT* mysql_stmt, MYSQL_BIND* output)
 {
 	if (mysql_stmt_execute(mysql_stmt))
 	{
@@ -118,7 +143,7 @@ bool DatabaseWrapper::ExecuteStmt(MYSQL_STMT* mysql_stmt, std::vector<MYSQL_BIND
 		return false;
 	}
 
-	if (mysql_stmt_bind_result(mysql_stmt, output.data()))
+	if (mysql_stmt_bind_result(mysql_stmt, output))
 	{
 		std::cout << "mysql_stmt_bind_result error : " << mysql_stmt_error(mysql_stmt) << std::endl;
 		return false;
@@ -126,11 +151,17 @@ bool DatabaseWrapper::ExecuteStmt(MYSQL_STMT* mysql_stmt, std::vector<MYSQL_BIND
 	return true;
 }
 
+UINT64 DatabaseWrapper::Insert_Id(MYSQL_STMT* mysql_stmt)
+{
+	return mysql_stmt_insert_id(mysql_stmt);
+}
+
 bool DatabaseWrapper::FetchStmt(MYSQL_STMT* mysql_stmt)
 {
 	int result = mysql_stmt_fetch(mysql_stmt);
 
 	if (result == 0) return true;
+	if (result == 101) return true;
 	if (result == MYSQL_NO_DATA) return false;
 	std::cout << "mysql_stmt_fetch error : " << mysql_stmt_error(mysql_stmt) << std::endl;
 	return false;
@@ -169,4 +200,15 @@ void DatabaseWrapper::SetBind(MYSQL_BIND& bind, enum_field_types bufferType, voi
 	bind.buffer = buffer;
 	bind.buffer_length = bufferLen;
 	bind.length = reinterpret_cast<unsigned long*>(realLen);
+}
+
+void DatabaseWrapper::SetBind(MYSQL_BIND& bind, enum_field_types bufferType, void* buffer, INT32 bufferLen,
+	UINT32* realLen, bool* isNull)
+{
+	ZeroMemory(&bind, sizeof(bind));
+	bind.buffer_type = bufferType;
+	bind.buffer = buffer;
+	bind.buffer_length = bufferLen;
+	bind.length = reinterpret_cast<unsigned long*>(realLen);
+	bind.is_null = isNull;
 }

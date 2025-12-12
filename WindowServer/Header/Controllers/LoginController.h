@@ -1,4 +1,5 @@
 #pragma once
+#include "Controller.h"
 #include "SendMsgTypes.h"
 #include "Interfaces/IRecvMessage.h"
 #include "Repositories/UserRepository.h"
@@ -6,7 +7,7 @@
 
 class UserRepository;
 
-class LoginController : public IRecvMessage
+class LoginController : public Controller, public IRecvMessage
 {
 private:
 	CONTROLLER_CLASS_H(LoginController, EMESSAGE_TYPE::LOGIN_PACKET);

@@ -48,3 +48,21 @@ void DatabaseManager::RegisterId(UINT32 localUserID)
 		LocalUserIdToUserId.insert({ localUserID , -1 });
 	}
 }
+
+void DatabaseManager::UnRegisterUserID(UINT32 localUserID)
+{
+	std::unique_lock<std::shared_mutex> lock(LocalUserIdToUserIdMutex);
+	if (LocalUserIdToUserId.find(localUserID) != LocalUserIdToUserId.cend())
+	{
+		LocalUserIdToUserId[localUserID] = 0;
+	}
+}
+
+void DatabaseManager::UnRegisterLocalUserID(UINT32 localUserID)
+{
+	std::unique_lock<std::shared_mutex> lock(LocalUserIdToUserIdMutex);
+	if (LocalUserIdToUserId.find(localUserID) != LocalUserIdToUserId.cend())
+	{
+		LocalUserIdToUserId.erase(localUserID);
+	}
+}

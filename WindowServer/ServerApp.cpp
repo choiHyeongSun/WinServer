@@ -36,9 +36,11 @@ DWORD WINAPI RecvProc(LPVOID LpParam)
 
 		//헤더 수신
 		sockWrapper->RecvMessageHeader(userId, &header->Data);
-		header->Data.MessageType = PacketBuilder::NtoHPacketType(header->Data.MessageType);
-		header->Data.MessageLen = ntohl(header->Data.MessageLen);
-		INT32 len = header->Data.MessageLen;
+		header->Data.PacketType = PacketBuilder::NtoHPacketType(header->Data.PacketType);
+		header->Data.PacketLen = ntohl(header->Data.PacketLen);
+		header->Data.UserLocalId = ntohl(header->Data.UserLocalId);
+
+		INT32 len = header->Data.PacketLen;
 		if (len < 0)
 		{
 			std::cout << "Message Size is too Large. User ID : " << userId << ", Size : " << len << std::endl;
@@ -46,7 +48,7 @@ DWORD WINAPI RecvProc(LPVOID LpParam)
 		}
 
 		//전체 메시지 받아오기
-		void* packet = PacketBuilder::PacketBuild(header->Data.MessageType);
+		std::vector<char> buffer(header->Data.PacketLen);
 		UINT32 totalRecvSize = 0;
 
 		while (totalRecvSize < len)
@@ -54,21 +56,18 @@ DWORD WINAPI RecvProc(LPVOID LpParam)
 			int sub = len - totalRecvSize;
 			sub = min(sub, bufferMaxSize);
 			
-			INT32 recvLen = sockWrapper->RecvMessage(userId, static_cast<char*>(packet) + totalRecvSize, sub);
+			INT32 recvLen = sockWrapper->RecvMessage(userId, buffer.data() + totalRecvSize, sub);
 			if (recvLen <= 0)
 			{
-				std::cout << "Recv Error User ID : " << userId << std::endl;
+				std::cout << "Recv Error code : " << GetLastError() << std::endl;
 				break;
 			}
 			totalRecvSize += recvLen;
 		}
-
-		const char* totalData = static_cast<const char*>(packet);
 		//Controller 실행
-		RecvManager::ExecuteCallback(header->Data.MessageType, userId, &header->Data, totalData, len, sockWrapper);
+		RecvManager::ExecuteCallback(header->Data.PacketType, userId, &header->Data, buffer.data(), len, sockWrapper);
 
 		//메모리 해제
-		PacketBuilder::ReleasePacket(header->Data.MessageType, &packet);
 		PacketBuilder::ReleasePacket(EMESSAGE_TYPE::NONE, reinterpret_cast<void**>(&header));
 	}
 	sockWrapper->CloseSocket(userId);
@@ -86,11 +85,13 @@ DWORD WINAPI AcceptProc(LPVOID LpParam)
 	{
 		sockWrapper->AcceptClient([&](UINT32 userID)
 		{
+			DatabaseManager::getInstance()->RegisterId(userID);
 			std::cout << "Connected User ID : " << userID << std::endl;
 			EntryServer entryMsg;
-			entryMsg.UserLocalId = htonl(entryMsg.UserLocalId);
-			entryMsg.MessageType = PacketBuilder::HtonPacketType(entryMsg.MessageType);
-			entryMsg.MessageLen = htonl(sizeof(entryMsg));
+			entryMsg.UserLocalId = htonl(userID);
+			entryMsg.PacketType = PacketBuilder::HtonPacketType(entryMsg.PacketType);
+			entryMsg.PacketLen = htonl(sizeof(entryMsg));
+
 
 			sockWrapper->PrivateMessage(userID, reinterpret_cast<const char*>(&entryMsg), sizeof(entryMsg), 0);
 
@@ -107,6 +108,7 @@ DWORD WINAPI AcceptProc(LPVOID LpParam)
 
 ServerApp::ServerApp()
 {
+
 	DatabaseManager::CreateInstance();
 	RepositoryManager::CreateInstance();
 	ServiceManager::CreateInstance();
@@ -126,7 +128,6 @@ ServerApp::ServerApp()
 	{
 		AcceptThread = CreateThread(nullptr, 0, AcceptProc, sockWrapper.get(), 0, nullptr);
 	}
-
 }
 
 ServerApp::~ServerApp()

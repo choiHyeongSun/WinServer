@@ -8,6 +8,6 @@ private:
 	INJECTION(UserRepository, userRepository);
 
 public:
-	bool JoinUser(std::string username, std::string password, std::string nickname);
+	bool JoinUser(std::string username, std::string password, std::string nickname, std::string & resultMsg);
 
 };

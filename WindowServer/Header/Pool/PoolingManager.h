@@ -1,4 +1,6 @@
 #pragma once
+#include <shared_mutex>
+
 #include "Pool/MemoryPool.h"
 #include "Pool/ObjectPool.h"
 
@@ -13,13 +15,18 @@ public:
 	}
 
 public:
-	static void CreateObjectPoolManager(size_t InSize, size_t InGroupSize);
 	static void FreeObject(TYPE** Obj);
 	static void FreeObject(void** Obj);
 	static TYPE* GenerateObject();
 
 private:
+	static void CreateObjectPoolManager(size_t InSize, size_t InGroupSize);
+
+
+private:
 	static std::unique_ptr<PoolingManager<TYPE>> ObjectManager;
+	static std::shared_mutex mutex;
+	static std::once_flag initFlag;
 
 	static const size_t MemoryPoolSize;
 	static const size_t MemoryPoolGroup;
@@ -69,20 +76,25 @@ void PoolingManager<TYPE>::FreeObject(void** Obj)
 template <class TYPE>
 TYPE* PoolingManager<TYPE>::GenerateObject()
 {
-	if (ObjectManager == nullptr)
-	{
+	
+	std::call_once(initFlag, [&]() {
 		CreateObjectPoolManager(MemoryPoolSize, MemoryPoolGroup);
-	}
+		});
 
-	TYPE* obj = ObjectManager->ObjectPooling->AllocateObject();
-	if (obj == nullptr)
+	if (ObjectManager == nullptr)
 	{
 		std::cout << "Generated Object Error" << std::endl;
 		exit(-1);
 	}
 
-	return obj;
+	return ObjectManager->ObjectPooling->AllocateObject();
 }
 
 template<class TYPE>
 std::unique_ptr<PoolingManager<TYPE>> PoolingManager<TYPE>::ObjectManager = nullptr;
+
+template<class TYPE>
+std::shared_mutex PoolingManager<TYPE>::mutex;
+
+template <class TYPE>
+std::once_flag PoolingManager<TYPE>::initFlag;
