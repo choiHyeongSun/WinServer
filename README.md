@@ -228,12 +228,15 @@ void DatabasePool::PushWrapper(std::shared_ptr<DatabaseWrapper>& database)
 <img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/876c6eb2-7e9e-45c2-bca6-bddd00486f88" />
 
 메시지 패킷
+<br>
 <img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/241a5d55-d17d-4454-b23b-3df7a4febec7" />
 
 룸멤버 패킷
+<br>
 <img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/b7459e6e-f7e0-45bd-8311-826ef7794e90" />
 
 룸 패킷
+<br>
 <img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/7ef35bb9-0249-4f6b-8e73-0281d5f57bca" />
 
 패킷 생성 
