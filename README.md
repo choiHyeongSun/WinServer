@@ -10,6 +10,7 @@ Memory Pool과 Object Pool을 도입하여 메모리 할당/해제 오버헤드�
 - **Memory Pool:** 잦은 `new/delete`로 인한 오버헤드 감소 및 힙 단편화 방지
 - **Object Pool:** 세션, 패킷 등 빈번히 생성/파괴되는 객체의 재사용
 - **DB Connection Pool:** 데이터베이스 연결/해제 비용 절감 및 쿼리 처리 속도 향상
+- **Layered Architecture**: Spring Framework의 3-Tier 구조를 벤치마킹하여, 네트워크 처리와 비즈니스 로직을 명확히 분리하고 유지보수성을 강화
 
 <br>
 
@@ -31,7 +32,7 @@ Memory Pool과 Object Pool을 도입하여 메모리 할당/해제 오버헤드�
 대용량 메모리 블록(Page)을 미리 할당받은 뒤, 이를 고정된 크기의 청크로 나누어 관리하는 방식을 구현했습니다.
 <br>
 
-**구현 원리**: 런타임에 OS에 메모리를 요청하지 않고, 미리 확보된 포인터 주소만 반환하여 할당 속도를 O(1)로 유지합니다.
+구현 원리: 런타임에 OS에 메모리를 요청하지 않고, 미리 확보된 포인터 주소만 반환하여 할당 속도를 O(1)로 유지합니다.
 
 <br>
 <img width="1597" height="980" alt="Image" src="https://github.com/user-attachments/assets/0573b13c-c908-4eaf-b3c3-858f4f2eab17">
@@ -82,9 +83,8 @@ void* MemoryPool::Allocate()
 
 ###  ObjectPool
 
-Memory Pool 위에서 동작하며, 생성과 소멸 비용이 큰 객체를 재사용하기 위해 구현했습니다.
+Memory Pool 위에서 동작하며, 생성과 소멸 오버헤드 줄이기 위해 구현하였습니다.
 <br>
-
 SList 활용: 일반적인 std::mutex 대신 Windows의 Interlocked SList를 사용하여, 멀티스레드 환경에서도 Lock-Free에 가까운 성능으로 안전하게 객체를 Pop/Push 할 수 있습니다.
 <br>
 사용이 끝난 객체는 메모리를 해제하지 않고, 초기화 과정만 거친 후 다시 Pool로 반환됩니다.
@@ -221,25 +221,20 @@ void DatabasePool::PushWrapper(std::shared_ptr<DatabaseWrapper>& database)
 }
 ```
 
-### 프로토콜 설계 
+### 패킷 설계 
 
-
-패킷 전송
+패킷
 <br>
-<img width="1024" height="474" alt="Image" src="https://github.com/user-attachments/assets/876c6eb2-7e9e-45c2-bca6-bddd00486f88" />
+<img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/876c6eb2-7e9e-45c2-bca6-bddd00486f88" />
 
 메시지 패킷
-<br>
-<img width="1024" height="474" alt="Image" src="https://github.com/user-attachments/assets/241a5d55-d17d-4454-b23b-3df7a4febec7" />
+<img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/241a5d55-d17d-4454-b23b-3df7a4febec7" />
 
 룸멤버 패킷
-<br>
-<img width="1024" height="474" alt="Image" src="https://github.com/user-attachments/assets/b7459e6e-f7e0-45bd-8311-826ef7794e90" />
+<img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/b7459e6e-f7e0-45bd-8311-826ef7794e90" />
 
-룸 패킷 
-<br>
-<img width="1024" height="474" alt="Image" src="https://github.com/user-attachments/assets/7ef35bb9-0249-4f6b-8e73-0281d5f57bca" />
-
+룸 패킷
+<img width="717" height="332" alt="Image" src="https://github.com/user-attachments/assets/7ef35bb9-0249-4f6b-8e73-0281d5f57bca" />
 
 패킷 생성 
 ```cpp
@@ -263,13 +258,13 @@ void DatabasePool::PushWrapper(std::shared_ptr<DatabaseWrapper>& database)
 ### 서버 통신 설계 
 
 Spring Framework의 3-Tier Layered Architecture (Controller - Service - Repository) 구조를 벤치마킹하여, 
-네트워크 처리 로직과 비즈니스 로직을 분리하였습니.
+네트워크 처리 로직과 비즈니스 로직을 분리하였습니다.
 
 <img width="501" height="548" alt="Image" src="https://github.com/user-attachments/assets/8787bc60-70c7-411a-816f-96da989842c8" />
 
 1. Packet Dispatcher (RecvManager)
     <br>
-    네트워크로부터 수신된 패킷의 Type을 분석하여 적절한 Controller로 라우팅하는 진입점 역할을 수행합니다.
+    네트워크로부터 수신된 패킷의 Type을 분석하여 적절한 Controller로 진입점 역할을 수행합니다.
 2. Controller
     <br>
     Request 데이터를 파싱하고 검증한 뒤, 구체적인 비즈니스 로직 수행을 위해 Service 계층을 호출합니다.
@@ -285,7 +280,7 @@ Spring Framework의 3-Tier Layered Architecture (Controller - Service - Reposito
     <br>
     b. 레이스 컨디션을 방지하기 위해 모든계층은 멤버변수를 최소화 하였으며 멤버변수를 사용시 Mutex를 활용하여 레이스 컨디션을 방지하였습니다.
     <br>
-    c. 싱글톤은 Controller, Service, Repository Manager를 만들어 생성 순서를 명시적으로 지정해줬습니다.
+    c. Controller, Service, Repository Manager를 만들어 생성 순서를 명시적으로 지정해줬습니다.
 
 <br>
 <br>
