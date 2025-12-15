@@ -87,7 +87,7 @@ void* MemoryPool::Allocate()
 
 Memory Pool 위에서 동작하며, 생성과 소멸 오버헤드 줄이기 위해 구현하였습니다.
 <br>
-SList 활용: 일반적인 std::mutex 대신 Windows의 Interlocked SList를 사용하여, 멀티스레드 환경에서도 Lock-Free에 가까운 성능으로 안전하게 객체를 Pop/Push 할 수 있습니다.
+SList 활용: 일반적인 std::mutex 대신 Windows의 Interlocked SList를 사용하여, 멀티스레드 환경에서도 안전하게 객체를 Pop/Push 할 수 있습니다.
 <br>
 사용이 끝난 객체는 메모리를 해제하지 않고, 초기화 과정만 거친 후 다시 Pool로 반환됩니다.
 
