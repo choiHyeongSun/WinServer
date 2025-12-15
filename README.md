@@ -281,11 +281,11 @@ Spring Framework의 3-Tier Layered Architecture (Controller - Service - Reposito
     DB Connection Pool을 통해 데이터베이스에 접근하며, SQL 쿼리 실행 및 데이터 매핑을 담당합니다.
 5. Architecture
     <br>
-    -  모든 계층(Controller, Service, Repository)은 Singleton Pattern으로 관리되어 메모리 낭비를 방지했습니다.
+    a. 모든 계층(Controller, Service, Repository)은 Singleton Pattern으로 관리되어 메모리 낭비를 방지했습니다.
     <br>
-    -  레이스 컨디션을 방지하기 위해 모든계층은 멤버변수를 최소화 하였으며 멤버변수를 사용시 Mutex를 활용하여 레이스 컨디션을 방지하였습니다.
+    b. 레이스 컨디션을 방지하기 위해 모든계층은 멤버변수를 최소화 하였으며 멤버변수를 사용시 Mutex를 활용하여 레이스 컨디션을 방지하였습니다.
     <br>
-    -  싱글톤은 Controller, Service, Repository Manager를 만들어 생성 순서를 명시적으로 지정해줬습니다.
+    c. 싱글톤은 Controller, Service, Repository Manager를 만들어 생성 순서를 명시적으로 지정해줬습니다.
 
 <br>
 <br>
